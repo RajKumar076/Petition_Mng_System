@@ -1,0 +1,11 @@
+# Ignore Python & Django files
+__pycache__/
+*.pyc
+*.pyo
+db.sqlite3
+venv/
+.env
+
+# Ignore React & Node.js files
+node_modules/
+build/
