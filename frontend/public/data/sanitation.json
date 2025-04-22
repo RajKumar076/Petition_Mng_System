@@ -1,0 +1,7 @@
+[
+    { "id": 1, "title": "Complaint J", "status": "Unsolved" },
+    { "id": 2, "title": "Complaint K", "status": "Solved" },
+    { "id": 3, "title": "Complaint L", "status": "Pending" },
+    { "id": 4, "title": "Complaint W", "status": "Pending" },
+    { "id": 5, "title": "Complaint U", "status": "Rejected" }
+  ]
