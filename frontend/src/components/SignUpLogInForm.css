@@ -113,6 +113,11 @@ form{ width: 100%; }
     font-weight: 600;
 }
 
+.btn-link{
+    background: none;
+    border: none;
+}
+
 .social-icons{
     display: flex;
     justify-content: center;

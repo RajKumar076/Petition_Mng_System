@@ -1,17 +1,20 @@
 [
-    {
-      "username": "admin",
-      "password": "admin123",
-      "role": "admin"
-    },
-    {
-      "username": "officer",
-      "password": "officer123",
-      "role": "officer"
-    },
-    {
-      "username": "user",
-      "password": "user123",
-      "role": "user"
-    }
-  ]
+  {
+    "username": "admin",
+    "password": "admin123",
+    "email": "admin@example.com",
+    "role": "admin"
+  },
+  {
+    "username": "officer",
+    "password": "officer123",
+    "email": "officer@example.com",
+    "role": "officer"
+  },
+  {
+    "username": "user",
+    "password": "user123",
+    "email": "user@example.com",
+    "role": "user"
+  }
+]

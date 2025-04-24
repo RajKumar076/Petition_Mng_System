@@ -3,11 +3,13 @@ import "./SignUpLogInForm.css";
 
 const LoginSignUpForm = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false); // Toggle for Forgot Password
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
     role: "user", // default role
+    newPassword: "", // For Forgot Password
   });
   const [sampleData, setSampleData] = useState([]);
 
@@ -18,7 +20,7 @@ const LoginSignUpForm = ({ onLogin }) => {
       if (storedData) {
         setSampleData(JSON.parse(storedData));
       } else {
-        const response = await fetch("public/data/sampleData.json");
+        const response = await fetch("/data/sampleData.json");
         const data = await response.json();
         setSampleData(data);
         localStorage.setItem("sampleData", JSON.stringify(data)); // Save to localStorage
@@ -54,6 +56,7 @@ const LoginSignUpForm = ({ onLogin }) => {
     // Add the new user to the sampleData array
     const newUser = {
       username: formData.username,
+      email: formData.email,
       password: formData.password,
       role: formData.role,
     };
@@ -70,12 +73,105 @@ const LoginSignUpForm = ({ onLogin }) => {
     localStorage.setItem("sampleData", JSON.stringify(updatedData)); // Save to localStorage
     alert("Registration successful");
     setIsLogin(true); // Switch to login view
+    setTimeout(() => {
+      window.location.reload(); // Reload the page to reflect changes
+    }, 1200);
+  };
+
+  const handleResetPassword = (e) => {
+    e.preventDefault();
+
+    // Find the user in the sample data
+    const userIndex = sampleData.findIndex(
+      (u) =>
+        u.username.toLowerCase().trim() === formData.username.toLowerCase().trim() &&
+        u.email.toLowerCase().trim() === formData.email.toLowerCase().trim() &&
+        u.role.toLowerCase().trim() === formData.role.toLowerCase().trim()
+    );
+
+    if (userIndex !== -1) {
+      // Update the user's password
+      const updatedData = [...sampleData];
+      updatedData[userIndex].password = formData.newPassword;
+
+      // Save the updated data to localStorage
+      setSampleData(updatedData);
+      localStorage.setItem("sampleData", JSON.stringify(updatedData));
+
+      alert("Password reset successfully!");
+      setIsForgotPassword(false); // Switch back to login view
+    } else {
+      alert("Invalid username, email, or role.");
+    }
   };
 
   return (
     <div className="main-container">
-      <div className={`container ${isLogin ? "" : "active"}`}>
-        {isLogin ? (
+      <div
+        className={`container ${
+          isForgotPassword ? "forgot-active" : isLogin ? "" : "active"
+        }`}
+      >
+        {isForgotPassword ? (
+          <div className="form-box forgot-password">
+            <form onSubmit={handleResetPassword}>
+              <h1>Forgot Password</h1>
+              <div className="input-box">
+                <input
+                  type="text"
+                  name="username"
+                  placeholder="Username"
+                  required
+                  onChange={handleChange}
+                />
+                <i className="bx bxs-user"></i>
+              </div>
+              <div className="input-box">
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  required
+                  onChange={handleChange}
+                />
+                <i className="bx bxs-envelope"></i>
+              </div>
+              <div className="input-box">
+                <select
+                  name="role"
+                  className="form-select"
+                  required
+                  onChange={handleChange}
+                >
+                  <option value="">Select Role</option>
+                  <option value="user">User</option>
+                  <option value="officer">Officer</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div className="input-box">
+                <input
+                  type="password"
+                  name="newPassword"
+                  placeholder="New Password"
+                  required
+                  onChange={handleChange}
+                />
+                <i className="bx bxs-lock-alt"></i>
+              </div>
+              <button type="submit" className="btn">
+                Reset Password
+              </button><br /><br />
+              <button
+                type="button"
+                className="btn-link"
+                onClick={() => setIsForgotPassword(false)}
+              >
+                Back to Login
+              </button>
+            </form>
+          </div>
+        ) : isLogin ? (
           <div className="form-box login">
             <form onSubmit={handleLogin}>
               <h1>Login</h1>
@@ -106,13 +202,19 @@ const LoginSignUpForm = ({ onLogin }) => {
                   value={formData.role}
                   onChange={handleChange}
                 >
-                  <option value="user" name="user">User</option>
+                  <option value="user">User</option>
                   <option value="officer">Officer</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
               <div className="forgot-link">
-                <a href="#">Forgot Password?</a>
+                <button
+                  type="button"
+                  className="btn-link"
+                  onClick={() => setIsForgotPassword(true)}
+                >
+                  Forgot Password?
+                </button>
               </div>
               <button type="submit" className="btn">
                 Login
