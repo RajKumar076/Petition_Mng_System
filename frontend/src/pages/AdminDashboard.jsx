@@ -2,32 +2,136 @@ import React from "react";
 import Header from "../components/Header";
 import PieChart from "../components/PieChart";
 import { useNavigate } from "react-router-dom";
+import StatsBoxes from "../components/StatsBoxes";
+import LineGraph from "../components/LineGraph";
+import BarGraph from "../components/BarGraph";
 
 const departments = ["Health", "Education", "Transport", "Sanitation"];
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const department = "all"; // Special flag to indicate total from all departments
 
   return (
     <div>
-      <Header />
-      <div className="container-fluid mt-4">
-        <div className="row">
-          {departments.map((dept) => (
-            <div
-              key={dept}
-              className="col-md-3 mb-4"
-              onClick={() => navigate(`/department/${dept.toLowerCase()}`)}
-              style={{ cursor: "pointer" }}
-            >
-              <div className="card shadow-sm h-100">
-                <div className="card-body text-center">
-                  <h5 className="card-title text-primary">{dept} Department</h5>
-                  <PieChart department={dept} />
+      {/* Header */}
+      <div
+        style={{
+          position: "fixed", // Fix the header at the top
+          top: "0",
+          left: "0",
+          width: "100%",
+          zIndex: "1000", // Ensure the header is above other elements
+        }}
+      >
+        <Header />
+      </div>
+
+      <div className="d-flex" style={{ marginTop: "56px" /* Adjust for header height */ }}>
+        {/* Sidebar */}
+        <div
+          className="bg-dark text-white p-3 shadow"
+          style={{
+            width: "250px",
+            height: "calc(100vh - 56px)", // Full viewport height minus header height
+            position: "fixed", // Fixed position
+            top: "56px", // Start below the fixed header
+            overflowY: "auto", // Enable scrolling within the sidebar if content overflows
+          }}
+        >
+          {/* <h4 className="text-center mb-4 mt-3">Admin Panel</h4> */}
+          <ul className="nav flex-column">
+            <li className="nav-item mb-2">
+              <button
+                className="btn btn-link text-white w-100 text-start text-decoration-none"
+                onClick={() => navigate("/admin-dashboard")}
+              >
+                <i className="bi bi-house-door me-2"></i> Dashboard
+              </button>
+            </li>
+            <li className="nav-item mb-2">
+              <button
+                className="btn btn-link text-white w-100 text-start text-decoration-none"
+                onClick={() => navigate("/add-category")}
+              >
+                <i className="bi bi-folder-plus me-2"></i> Add Category
+              </button>
+            </li>
+            <li className="nav-item mb-2">
+              <button
+                className="btn btn-link text-white w-100 text-start text-decoration-none"
+                onClick={() => navigate("/add-officer")}
+              >
+                <i className="bi bi-person-plus me-2"></i> Add Officer
+              </button>
+            </li>
+            <li className="nav-item mb-2">
+              <button
+                className="btn btn-link text-white w-100 text-start text-decoration-none"
+                onClick={() => navigate("/view-officers")}
+              >
+                <i className="bi bi-people me-2"></i> View Officers
+              </button>
+            </li>
+            <li className="nav-item mb-2">
+              <button
+                className="btn btn-link text-white w-100 text-start text-decoration-none"
+                onClick={() => navigate("/view-users")}
+              >
+                <i className="bi bi-person me-2"></i> View Users
+              </button>
+            </li>
+            <li className="nav-item mb-2">
+              <button
+                className="btn btn-link text-white w-100 text-start text-decoration-none"
+                onClick={() => navigate("/inventory")}
+              >
+                <i className="bi bi-file-earmark-text me-2"></i> View Grievance
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        {/* Main Content */}
+        <div className="container-fluid mt-4" style={{ marginLeft: "250px" }}>
+          {/* Overall Stats */}
+          <StatsBoxes department={department} />
+
+          {/* Graphs */}
+          <div className="row mt-4">
+            <div className="col-md-6 mb-4">
+              <div className="card shadow-sm">
+                <div className="card-body">
+                  <LineGraph department={department} />
                 </div>
               </div>
             </div>
-          ))}
+            <div className="col-md-6 mb-4">
+              <div className="card shadow-sm">
+                <div className="card-body">
+                  <BarGraph department={department} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="row">
+            {departments.map((dept) => (
+              <div
+                key={dept}
+                className="col-md-3 mb-4"
+                onClick={() => navigate(`/department/${dept.toLowerCase()}`)}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="card shadow-sm h-100">
+                  <div className="card-body text-center">
+                    <h5 className="card-title text-primary">{dept} Department</h5>
+                    <PieChart department={dept} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

@@ -263,8 +263,8 @@ const LoginSignUpForm = ({ onLogin }) => {
                   onChange={handleChange}
                 >
                   <option value="user">User</option>
-                  <option value="officer">Officer</option>
-                  <option value="admin">Admin</option>
+                  {/* <option value="officer">Officer</option> */}
+                  {/* <option value="admin">Admin</option> */}
                 </select>
               </div>
               <button type="submit" className="btn">

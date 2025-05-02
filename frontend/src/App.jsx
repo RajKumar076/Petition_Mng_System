@@ -4,6 +4,14 @@ import AdminDashboard from "./pages/AdminDashboard";
 import OfficerDashboard from "./pages/OfficerDashboard";
 import UserDashboard from "./pages/UserDashboard";
 import DepartmentInventoryPage from "./pages/DepartmentInventoryPage";
+import StatusPage from "./pages/StatusPage";
+import ComplainFormPage from "./pages/ComplainFormPage";
+import LandingPage from "./pages/LandingPage"; // Import the LandingPage
+import Inventory from "./pages/Inventory"; // Import the Inventory page
+import ViewUsers from "./pages/ViewUsers";
+import ViewOfficers from "./pages/ViewOfficers";
+import AddOfficer from "./pages/AddOfficer";
+import AddCategory from "./pages/AddCategory";
 import "./App.css";
 import LoginSignUpForm from "./components/LoginSignUpForm";
 
@@ -29,7 +37,8 @@ function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path="/" element={<LoginSignUpForm onLogin={handleLogin} />} />
+        <Route path="/" element={<LandingPage />} /> {/* Landing Page */}
+        <Route path="/login" element={<LoginSignUpForm onLogin={handleLogin} />} /> {/* Login Page */}
         <Route
           path="/admin"
           element={
@@ -55,6 +64,13 @@ function App() {
           }
         />
         <Route path="/department/:departmentName" element={<DepartmentInventoryPage />} />
+        <Route path="/view-status" element={<StatusPage />} />
+        <Route path="/complain-form" element={<ComplainFormPage />} />
+        <Route path="/inventory" element={<Inventory />} /> {/* New Inventory Route */}
+        <Route path="/view-users" element={<ViewUsers />} />
+        <Route path="/view-officers" element={<ViewOfficers />} />
+        <Route path="/add-officer" element={<AddOfficer />} />
+        <Route path="/add-category" element={<AddCategory />} />
       </Routes>
     </div>
   );

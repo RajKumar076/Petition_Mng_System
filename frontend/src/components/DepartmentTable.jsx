@@ -17,27 +17,49 @@ const DepartmentTable = ({ department, limit = 5 }) => {
     loadData();
   }, [department, limit]);
 
+  // Function to get color based on status
+  const getStatusColor = (status) => {
+    switch (status.toLowerCase()) {
+      case "solved":
+        return "text-success p-3"; // Bootstrap success class
+      case "pending":
+        return "text-warning p-3"; // Bootstrap warning class
+      case "rejected":
+        return "text-danger p-3"; // Bootstrap danger class
+      case "unsolved":
+        return "text-secondary p-3"; // Bootstrap secondary class
+      default:
+        return "text-info p-3"; // Bootstrap info class
+    }
+  };
+
   return (
-    <div className="my-4 border rounded shadow p-4">
-      <h3 className="text-lg font-semibold mb-2">{department.toUpperCase()} DEPARTMENT COMPLAINTS</h3>
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="p-2">ID</th>
-            <th className="p-2">Title</th>
-            <th className="p-2">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map(({ id, title, status }) => (
-            <tr key={id} className="border-t">
-              <td className="p-2">{id}</td>
-              <td className="p-2">{title}</td>
-              <td className="p-2">{status}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="d-flex justify-content-center align-items-center">
+      {/* <div className="container"> */}
+        {/* <h3 className="text-center text-primary mb-4">
+          {department.toUpperCase()} DEPARTMENT COMPLAINTS
+        </h3> */}
+        <div className="table-responsive w-100 rounded" style={{ maxHeight: "400px", overflowY: "auto" }}>
+          <table className="table table-bordered table-hover text-center">
+            <thead className="table-dark" style={{ position: "sticky", top: 0, zIndex: 1 }}>
+              <tr>
+                <th className="p-3">ID</th>
+                <th className="p-3">Title</th>
+                <th className="p-3">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map(({ id, title, status }) => (
+                <tr key={id}>
+                  <td className="p-3">{id}</td>
+                  <td className="p-3">{title}</td>
+                  <td className={getStatusColor(status)}>{status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      {/* </div> */}
     </div>
   );
 };
