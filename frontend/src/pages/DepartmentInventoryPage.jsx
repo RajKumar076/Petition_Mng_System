@@ -10,9 +10,7 @@ const DepartmentInventoryPage = () => {
     <div>
       <Header />
       <div  className="container bg-white">
-
       <div className="container-fluid mt-4">
-      <button className="btn btn-outline-secondary mb-3 w-25" onClick={() => window.history.back()}>← Back</button>
         <h2 className="mb-4 text-primary text-center text-capitalize">
           {departmentName} Department - Inventory
         </h2>
@@ -20,6 +18,8 @@ const DepartmentInventoryPage = () => {
         <DepartmentTable department={departmentName} limit={100} />
       </div>
       </div>
+      <button className="btn btn-outline-secondary mb-3" style={{width:"100px"}} onClick={() => window.history.back()}>← Back</button>
+
     </div>
   );
 };
