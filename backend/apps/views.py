@@ -1,5 +1,4 @@
-from django.shortcuts import render
-
+from django.shortcuts import render, redirect
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.contrib.auth.models import User
@@ -8,6 +7,11 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
+from django.http import JsonResponse
+
+# Initially redirect to the landing page in react
+def landing_redirect(request):
+    return redirect("http://localhost:3000/")
 
 # Signup API View
 class SignUpView(APIView):
@@ -45,9 +49,18 @@ class LoginView(APIView):
             return Response({"error": "Both username and password are required!"}, status=status.HTTP_400_BAD_REQUEST)
         
         user = authenticate(username=username, password=password)
-        
-        if user is None:
-            return Response({"error": "Invalid credentials!"}, status=status.HTTP_401_UNAUTHORIZED)
-        
-        return Response({"message": "Login successful!"}, status=status.HTTP_200_OK)
+        if user is not None:
+            if user.is_superuser:
+                role = "admin"
+            elif hasattr(user, 'profile') and user.profile.role:
+                role = user.profile.role  # Assuming a `role` field in profile
+            else:
+                role = "user"  # Default if no role field
+
+            return JsonResponse({
+                "message": f"Login successful as {role}",
+                "role": role
+            }, status=200)
+        else:
+            return JsonResponse({"error": "Invalid credentials"}, status=401)
 

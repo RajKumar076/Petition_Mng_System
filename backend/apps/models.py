@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 # Create your models here.
 class Department(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    officer = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, limit_choices_to={'profile__role': 'officer'})
 
     def __str__(self):
         return self.name
@@ -34,15 +35,32 @@ class Petition(models.Model):
     department = models.ForeignKey(Department, on_delete=models.CASCADE)  # Assigned department
     title = models.CharField(max_length=255)
     description = models.TextField()
+    proof_file = models.FileField(upload_to='proofs/', null=True, blank=True)
+    date_submitted = models.DateTimeField(auto_now_add=True)
+    date_resolved = models.DateTimeField(null=True, blank=True)  # Only for resolved petitions
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    # created_at = models.DateTimeField(auto_now_add=True)
+    # updated_at = models.DateTimeField(auto_now=True)
     
-    # AI Analysis
+    def __str__(self):
+        return f"{self.title} - by {self.user.username}"
+
+# AI Analysed Petition Model
+class AIAnalysedPetition(models.Model):
+    petition = models.OneToOneField(Petition, on_delete=models.CASCADE)
     priority = models.CharField(max_length=10, choices=[('Low', 'Low'), ('Medium', 'Medium'), ('High', 'High')])
-    sentiment = models.CharField(max_length=10, choices=[('Positive', 'Positive'), ('Negative', 'Negative'), ('Neutral', 'Neutral')])
+    sentiment = models.CharField(max_length=10, choices=[('Positive', 'Positive'), ('Neutral', 'Neutral'), ('Negative', 'Negative')])
     is_spam = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.title
+        return f"AI Analysis - {self.petition.title}"
+
+
+    # # AI Analysis
+    # priority = models.CharField(max_length=10, choices=[('Low', 'Low'), ('Medium', 'Medium'), ('High', 'High')])
+    # sentiment = models.CharField(max_length=10, choices=[('Positive', 'Positive'), ('Negative', 'Negative'), ('Neutral', 'Neutral')])
+    # is_spam = models.BooleanField(default=False)
+
+    # def __str__(self):
+    #     return self.title
     

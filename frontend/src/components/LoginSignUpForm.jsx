@@ -33,49 +33,93 @@ const LoginSignUpForm = ({ onLogin }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Simulate database check using sample data
-    const user = sampleData.find(
-      (u) =>
-        u.username === formData.username &&
-        u.password === formData.password &&
-        u.role === formData.role
-    );
+    // // Simulate database check using sample data
+    // const user = sampleData.find(
+    //   (u) =>
+    //     u.username === formData.username &&
+    //     u.password === formData.password &&
+    //     u.role === formData.role
+    // );
 
-    if (user) {
-      alert("Login successful: " + user.role);
-      onLogin(user.role); // Send the user role to App.jsx
-    } else {
-      alert("Invalid credentials or role mismatch");
+    // if (user) {
+    //   alert("Login successful: " + user.role);
+    //   onLogin(user.role); // Send the user role to App.jsx
+    // } else {
+    //   alert("Invalid credentials or role mismatch");
+    // }
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/login/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Role from backend:", data.role); // Debug log
+        alert(data.message);
+        onLogin(data.role); // Pass user role to parent component
+      } else {
+        alert(data.error);
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
     }
+    
   };
 
-  const handleRegister = (e) => {
+  const handleRegister = async(e) => {
     e.preventDefault();
-    // Add the new user to the sampleData array
-    const newUser = {
-      username: formData.username,
-      email: formData.email,
-      password: formData.password,
-      role: formData.role,
-    };
+    // // Add the new user to the sampleData array
+    // const newUser = {
+    //   username: formData.username,
+    //   email: formData.email,
+    //   password: formData.password,
+    //   role: formData.role,
+    // };
 
-    // Check if the username already exists
-    const userExists = sampleData.some((u) => u.username === newUser.username);
-    if (userExists) {
-      alert("Username already exists. Please choose a different username.");
-      return;
+    // // Check if the username already exists
+    // const userExists = sampleData.some((u) => u.username === newUser.username);
+    // if (userExists) {
+    //   alert("Username already exists. Please choose a different username.");
+    //   return;
+    // }
+
+    // const updatedData = [...sampleData, newUser];
+    // setSampleData(updatedData); // Update the state
+    // localStorage.setItem("sampleData", JSON.stringify(updatedData)); // Save to localStorage
+    // alert("Registration successful");
+    // setIsLogin(true); // Switch to login view
+    // setTimeout(() => {
+    //   window.location.reload(); // Reload the page to reflect changes
+    // }, 1200);
+
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/signup/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        alert(data.message);
+        setIsLogin(true); // Switch to login view
+      } else {
+        alert(data.error);
+      }
+    } catch (error) {
+      console.error("Error during registration:", error);
     }
 
-    const updatedData = [...sampleData, newUser];
-    setSampleData(updatedData); // Update the state
-    localStorage.setItem("sampleData", JSON.stringify(updatedData)); // Save to localStorage
-    alert("Registration successful");
-    setIsLogin(true); // Switch to login view
-    setTimeout(() => {
-      window.location.reload(); // Reload the page to reflect changes
-    }, 1200);
   };
 
   const handleResetPassword = (e) => {
@@ -136,7 +180,7 @@ const LoginSignUpForm = ({ onLogin }) => {
                 />
                 <i className="bx bxs-envelope"></i>
               </div>
-              <div className="input-box">
+              {/* <div className="input-box">
                 <select
                   name="role"
                   className="form-select"
@@ -147,8 +191,8 @@ const LoginSignUpForm = ({ onLogin }) => {
                   <option value="user">User</option>
                   <option value="officer">Officer</option>
                   <option value="admin">Admin</option>
-                </select>
-              </div>
+                </select> 
+              </div>*/}
               <div className="input-box">
                 <input
                   type="password"
@@ -195,7 +239,7 @@ const LoginSignUpForm = ({ onLogin }) => {
                 />
                 <i className="bx bxs-lock-alt"></i>
               </div>
-              <div className="input-box">
+              {/* <div className="input-box">
                 <select
                   name="role"
                   className="form-select"
@@ -206,7 +250,7 @@ const LoginSignUpForm = ({ onLogin }) => {
                   <option value="officer">Officer</option>
                   <option value="admin">Admin</option>
                 </select>
-              </div>
+              </div> */}
               <div className="forgot-link">
                 <button
                   type="button"
