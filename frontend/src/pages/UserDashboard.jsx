@@ -43,7 +43,7 @@ const UserDashboard = () => {
                 <h4 className="text-primary">Complain</h4>
                 <button
                   className="btn btn-primary"
-                  onClick={() => navigate("/complain-form")}
+                  onClick={() => navigate("/choose-department")}
                 >
                   Go to Complain Form
                 </button>

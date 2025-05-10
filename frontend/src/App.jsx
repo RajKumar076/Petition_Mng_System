@@ -5,6 +5,7 @@ import OfficerDashboard from "./pages/OfficerDashboard";
 import UserDashboard from "./pages/UserDashboard";
 import DepartmentInventoryPage from "./pages/DepartmentInventoryPage";
 import StatusPage from "./pages/StatusPage";
+import ChooseDepartment from "./pages/ChooseDepartment";
 import ComplainFormPage from "./pages/ComplainFormPage";
 import LandingPage from "./pages/LandingPage"; // Import the LandingPage
 import Inventory from "./pages/Inventory"; // Import the Inventory page
@@ -65,6 +66,8 @@ function App() {
         />
         <Route path="/department/:departmentName" element={<DepartmentInventoryPage />} />
         <Route path="/view-status" element={<StatusPage />} />
+        <Route path="/choose-department" element={<ChooseDepartment />} />
+        {/* <Route path="/complain-form/:departmentName" element={<ComplainFormPage />} /> */}
         <Route path="/complain-form" element={<ComplainFormPage />} />
         <Route path="/inventory" element={<Inventory />} /> {/* New Inventory Route */}
         <Route path="/view-users" element={<ViewUsers />} />
