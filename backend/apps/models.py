@@ -4,11 +4,19 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 class Department(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-    officer = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, limit_choices_to={'profile__role': 'officer'})
+    name = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
+    image_url = models.URLField(max_length=500, blank=True)  
 
     def __str__(self):
         return self.name
+
+class OfficerProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.department.name}"
 
 class Profile(models.Model):
     ROLE_CHOICES = [

@@ -1,17 +1,24 @@
 import React from "react";
+// import { useParams } from 'react-router-dom';
 
-const ComplainFormPage = () => {
+
+const SubmitGrievance = () => {
+  // const { departmentName } = useParams();
+  // const location = useLocation();
+  // const { department } = location.state;
+
   return (
     <div className="bg-light min-vh-100 d-flex flex-column justify-content-center align-items-center py-4">
       <div className="container" style={{ height: "710px", overflowY: "auto" }}      >
-        <h2 className="text-center mb-5 fw-bold">📝 Submit a Complaint</h2>
+        <h2 className="text-center mb-5 fw-bold">📝Submit Grievance for
+        </h2>
         <div className="row justify-content-center">
           <div className="col-md-10 col-lg-8">
             <div className="card shadow rounded-4 p-4 border-0">
               <form>
                 {/* Title */}
                 <div className="form-group mb-3">
-                  <label htmlFor="title" className="fw-semibold">Complaint Title</label>
+                  <label htmlFor="title" className="fw-semibold">Grievance Title</label>
                   <input
                     type="text"
                     id="title"
@@ -106,5 +113,5 @@ const ComplainFormPage = () => {
   );
 };
 
-export default ComplainFormPage;
+export default SubmitGrievance;
 // This code creates a responsive complaint form using Bootstrap classes. The form includes fields for the complaint title, description, address, pincode, date of incident, and file upload. It also has a checkbox for confirmation and a submit button. The layout is designed to be user-friendly and visually appealing.
