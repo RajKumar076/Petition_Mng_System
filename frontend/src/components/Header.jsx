@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const Header = () => {
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: "#9352dd" }}>
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">
           Grievance System

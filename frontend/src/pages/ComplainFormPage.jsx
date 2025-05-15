@@ -82,14 +82,14 @@ const ComplainFormPage = () => {
 
                 {/* Checkbox */}
                 <div className="form-check mb-4">
-                  <input
+                  
+                  <label className="form-check-label" htmlFor="acknowledgement">
+                    <input
                     type="checkbox"
                     className="form-check-input"
                     id="acknowledgement"
                     required
-                  />
-                  <label className="form-check-label" htmlFor="acknowledgement">
-                    I confirm that the above information is accurate.
+                  />I confirm that the above information is accurate.
                   </label>
                 </div>
 
