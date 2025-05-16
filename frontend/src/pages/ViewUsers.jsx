@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Header from "../components/Header.jsx";
 
 const ViewUsers = () => {
   const [users, setUsers] = useState([]);
@@ -20,6 +21,8 @@ const ViewUsers = () => {
   }, []);
 
   return (
+    <div>
+      <Header />
     <div className="container mt-4">
       <h2 className="mb-4">All Users</h2>
       <div className="row">
@@ -35,6 +38,7 @@ const ViewUsers = () => {
           </div>
         ))}
       </div>
+    </div>
     </div>
   );
 };

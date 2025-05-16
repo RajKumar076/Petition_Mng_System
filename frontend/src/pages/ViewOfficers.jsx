@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Header from "../components/Header.jsx";
 
 const ViewOfficers = () => {
   const [officers, setOfficers] = useState([]);
@@ -20,6 +21,8 @@ const ViewOfficers = () => {
   }, []);
 
   return (
+    <div>
+      <Header />
     <div className="container mt-4">
       <h2 className="mb-4">All Officers</h2>
       <div className="row">
@@ -35,6 +38,7 @@ const ViewOfficers = () => {
           </div>
         ))}
       </div>
+    </div>
     </div>
   );
 };

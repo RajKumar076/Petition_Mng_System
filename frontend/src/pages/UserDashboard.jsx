@@ -40,10 +40,10 @@ const UserDashboard = () => {
           <div className="col-md-6">
             <div className="card shadow-sm">
               <div className="card-body text-center">
-                <h4 className="text-primary">Complain</h4>
+                <h4 style={{color:"#9352dd"}}>To Complain</h4>
                 <button
                   className="btn btn-primary"
-                  onClick={() => navigate("/choose-department")}
+                  onClick={() => navigate("./choosedepartment")}
                 >
                   Go to Complain Form
                 </button>
@@ -53,12 +53,12 @@ const UserDashboard = () => {
           <div className="col-md-6">
             <div className="card shadow-sm">
               <div className="card-body text-center">
-                <h4 className="text-primary">View Status</h4>
+                <h4 style={{color:"#9352dd"}}>Grievance History</h4>
                 <button
                   className="btn btn-primary"
-                  onClick={() => navigate("/view-status")}
+                  onClick={() => navigate("./history")}
                 >
-                  Go to Status Page
+                  Go to History Page
                 </button>
               </div>
             </div>
