@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import Header from "../components/Header.jsx";
 
 const AddCategory = () => {
   const [category, setCategory] = useState({
@@ -47,6 +48,8 @@ const AddCategory = () => {
   };
 
   return (
+    <div>
+    <Header />
     <div
       className="d-flex justify-content-center align-items-center"
       style={{
@@ -116,7 +119,7 @@ const AddCategory = () => {
               <label className="form-label">Image Preview:</label>
               <div>
                 <img
-                  src={category.image_url}
+                  src={encodeURI(category.image_url)}
                   alt="Department Preview"
                   style={{
                     maxWidth: "200px",
@@ -136,6 +139,7 @@ const AddCategory = () => {
           </div>
         </form>
       </div>
+    </div>
     </div>
   );
 };

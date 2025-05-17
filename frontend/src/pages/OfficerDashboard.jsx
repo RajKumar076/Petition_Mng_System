@@ -21,7 +21,7 @@ const OfficerDashboard = () => {
         <div className="row mt-4">
           <div
             className="col-md-6 mb-4"
-            onClick={() => navigate(`/department/${department.toLowerCase()}`)}
+            onClick={() => navigate(`./department/${department.toLowerCase()}`)}
             style={{ cursor: "pointer" }}
           >
             <div className="card shadow-sm">
@@ -32,7 +32,7 @@ const OfficerDashboard = () => {
           </div>
           <div
             className="col-md-6 mb-4"
-            onClick={() => navigate(`/department/${department.toLowerCase()}`)}
+            onClick={() => navigate(`./department/${department.toLowerCase()}`)}
             style={{ cursor: "pointer" }}
           >
             <div className="card shadow-sm">

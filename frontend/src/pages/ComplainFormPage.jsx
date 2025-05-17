@@ -1,24 +1,27 @@
 import React from "react";
-// import { useParams } from 'react-router-dom';
-
+import { useParams } from "react-router-dom"; // Import useParams
+import Header from "../components/Header.jsx";
 
 const SubmitGrievance = () => {
-  // const { departmentName } = useParams();
-  // const location = useLocation();
-  // const { department } = location.state;
+  const { departmentName } = useParams(); // Extract department name from URL
 
   return (
+    <div>
+    <Header />
     <div className="bg-light min-vh-100 d-flex flex-column justify-content-center align-items-center py-4">
-      <div className="container" style={{ height: "710px", overflowY: "auto" }}      >
-        <h2 className="text-center mb-5 fw-bold">📝Submit Grievance for
+      {/* <div className="container" style={{ height: "710px", overflowY: "auto" }}> */}
+        <h2 className="text-center mb-5 fw-bold">
+          📝 Submit Grievance for <span className="text-primary">{departmentName}</span>
         </h2>
         <div className="row justify-content-center">
-          <div className="col-md-10 col-lg-8">
+          <div className="col-md-12 col-lg-12">
             <div className="card shadow rounded-4 p-4 border-0">
               <form>
                 {/* Title */}
                 <div className="form-group mb-3">
-                  <label htmlFor="title" className="fw-semibold">Grievance Title</label>
+                  <label htmlFor="title" className="fw-semibold">
+                    Grievance Title
+                  </label>
                   <input
                     type="text"
                     id="title"
@@ -30,7 +33,9 @@ const SubmitGrievance = () => {
 
                 {/* Description */}
                 <div className="form-group mb-3">
-                  <label htmlFor="description" className="fw-semibold">Description</label>
+                  <label htmlFor="description" className="fw-semibold">
+                    Description
+                  </label>
                   <textarea
                     id="description"
                     className="form-control"
@@ -43,7 +48,9 @@ const SubmitGrievance = () => {
                 {/* Address and Pincode */}
                 <div className="row mb-3">
                   <div className="col-md-8">
-                    <label htmlFor="address" className="fw-semibold">Address</label>
+                    <label htmlFor="address" className="fw-semibold">
+                      Address
+                    </label>
                     <input
                       type="text"
                       id="address"
@@ -53,7 +60,9 @@ const SubmitGrievance = () => {
                     />
                   </div>
                   <div className="col-md-4">
-                    <label htmlFor="pincode" className="fw-semibold">Pincode</label>
+                    <label htmlFor="pincode" className="fw-semibold">
+                      Pincode
+                    </label>
                     <input
                       type="text"
                       id="pincode"
@@ -67,7 +76,9 @@ const SubmitGrievance = () => {
 
                 {/* Date */}
                 <div className="form-group mb-3">
-                  <label htmlFor="incidentDate" className="fw-semibold">Date of Incident</label>
+                  <label htmlFor="incidentDate" className="fw-semibold">
+                    Date of Incident
+                  </label>
                   <input
                     type="date"
                     id="incidentDate"
@@ -78,7 +89,9 @@ const SubmitGrievance = () => {
 
                 {/* File Upload */}
                 <div className="form-group mb-3">
-                  <label htmlFor="documents" className="fw-semibold">Upload Supporting Documents</label>
+                  <label htmlFor="documents" className="fw-semibold">
+                    Upload Supporting Documents
+                  </label>
                   <input
                     type="file"
                     id="documents"
@@ -89,14 +102,14 @@ const SubmitGrievance = () => {
 
                 {/* Checkbox */}
                 <div className="form-check mb-4">
-                  
                   <label className="form-check-label" htmlFor="acknowledgement">
                     <input
-                    type="checkbox"
-                    className="form-check-input"
-                    id="acknowledgement"
-                    required
-                  />I confirm that the above information is accurate.
+                      type="checkbox"
+                      className="form-check-input"
+                      id="acknowledgement"
+                      required
+                    />
+                    I confirm that the above information is accurate.
                   </label>
                 </div>
 
@@ -108,10 +121,10 @@ const SubmitGrievance = () => {
             </div>
           </div>
         </div>
-      </div>
+      {/* </div> */}
+    </div>
     </div>
   );
 };
 
 export default SubmitGrievance;
-// This code creates a responsive complaint form using Bootstrap classes. The form includes fields for the complaint title, description, address, pincode, date of incident, and file upload. It also has a checkbox for confirmation and a submit button. The layout is designed to be user-friendly and visually appealing.

@@ -44,7 +44,7 @@ const AdminDashboard = () => {
             <li className="nav-item mb-2">
               <button
                 className="btn btn-link text-white w-100 text-start text-decoration-none"
-                onClick={() => navigate("/admin-dashboard")}
+                onClick={() => navigate("/admindashboard")}
               >
                 <i className="bi bi-house-door me-2"></i> Dashboard
               </button>
@@ -52,7 +52,7 @@ const AdminDashboard = () => {
             <li className="nav-item mb-2">
               <button
                 className="btn btn-link text-white w-100 text-start text-decoration-none"
-                onClick={() => navigate("/add-category")}
+                onClick={() => navigate("./add-category")}
               >
                 <i className="bi bi-folder-plus me-2"></i> Add Category
               </button>
@@ -60,7 +60,7 @@ const AdminDashboard = () => {
             <li className="nav-item mb-2">
               <button
                 className="btn btn-link text-white w-100 text-start text-decoration-none"
-                onClick={() => navigate("/add-officer")}
+                onClick={() => navigate("./add-officer")}
               >
                 <i className="bi bi-person-plus me-2"></i> Add Officer
               </button>
@@ -68,7 +68,7 @@ const AdminDashboard = () => {
             <li className="nav-item mb-2">
               <button
                 className="btn btn-link text-white w-100 text-start text-decoration-none"
-                onClick={() => navigate("/view-officers")}
+                onClick={() => navigate("./view-officers")}
               >
                 <i className="bi bi-people me-2"></i> View Officers
               </button>
@@ -76,7 +76,7 @@ const AdminDashboard = () => {
             <li className="nav-item mb-2">
               <button
                 className="btn btn-link text-white w-100 text-start text-decoration-none"
-                onClick={() => navigate("/view-users")}
+                onClick={() => navigate("./view-users")}
               >
                 <i className="bi bi-person me-2"></i> View Users
               </button>
@@ -84,7 +84,7 @@ const AdminDashboard = () => {
             <li className="nav-item mb-2">
               <button
                 className="btn btn-link text-white w-100 text-start text-decoration-none"
-                onClick={() => navigate("/inventory")}
+                onClick={() => navigate("./inventory")}
               >
                 <i className="bi bi-file-earmark-text me-2"></i> View Grievance
               </button>
@@ -120,7 +120,7 @@ const AdminDashboard = () => {
               <div
                 key={dept}
                 className="col-md-3 mb-4"
-                onClick={() => navigate(`/department/${dept.toLowerCase()}`)}
+                onClick={() => navigate(`./department/${dept.toLowerCase()}`)}
                 style={{ cursor: "pointer" }}
               >
                 <div className="card shadow-sm h-100">

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Header from "../components/Header.jsx";
 
 const Inventory = () => {
   const [grievances, setGrievances] = useState([]);
@@ -30,6 +31,8 @@ const Inventory = () => {
   }, []);
 
   return (
+    <div>
+      <Header />
     <div
       className="container mt-4"
       style={{
@@ -78,6 +81,7 @@ const Inventory = () => {
           </tbody>
         </table>
       </div>
+    </div>
     </div>
   );
 };
