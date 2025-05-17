@@ -64,18 +64,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-<<<<<<< HEAD
-        <Route path="/department/:departmentName" element={<DepartmentInventoryPage />} />
-        <Route path="/view-status" element={<StatusPage />} />
-        <Route path="/choose-department" element={<ChooseDepartment />} />
-        <Route path="/complaint-form/:departmentName" element={<ComplainFormPage />} />
-        {/* <Route path="/complain-form" element={<ComplainFormPage />} /> */}
-        <Route path="/inventory" element={<Inventory />} /> {/* New Inventory Route */}
-        <Route path="/view-users" element={<ViewUsers />} />
-        <Route path="/view-officers" element={<ViewOfficers />} />
-        <Route path="/add-officer" element={<AddOfficer />} />
-        <Route path="/add-category" element={<AddCategory />} />
-=======
         <Route path=":roledashboard/department/:departmentName" element={<DepartmentInventoryPage />} />
         <Route path="userdashboard/history" element={<StatusPage />} />
         <Route path="userdashboard/choosedepartment" element={<ChooseDepartment />} />
@@ -86,7 +74,6 @@ function App() {
         <Route path="admindashboard/view-officers" element={<ViewOfficers />} />
         <Route path="admindashboard/add-officer" element={<AddOfficer />} />
         <Route path="admindashboard/add-category" element={<AddCategory />} />
->>>>>>> 104ecf769ae06be007f2a3258c3a80dc5061569c
       </Routes>
     </div>
   );
