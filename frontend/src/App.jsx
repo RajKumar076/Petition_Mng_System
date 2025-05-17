@@ -67,8 +67,8 @@ function App() {
         <Route path="/department/:departmentName" element={<DepartmentInventoryPage />} />
         <Route path="/view-status" element={<StatusPage />} />
         <Route path="/choose-department" element={<ChooseDepartment />} />
-        {/* <Route path="/complain-form/:departmentName" element={<ComplainFormPage />} /> */}
-        <Route path="/complain-form" element={<ComplainFormPage />} />
+        <Route path="/complaint-form/:departmentName" element={<ComplainFormPage />} />
+        {/* <Route path="/complain-form" element={<ComplainFormPage />} /> */}
         <Route path="/inventory" element={<Inventory />} /> {/* New Inventory Route */}
         <Route path="/view-users" element={<ViewUsers />} />
         <Route path="/view-officers" element={<ViewOfficers />} />

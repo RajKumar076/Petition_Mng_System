@@ -36,6 +36,7 @@ const DepartmentCards = () => {
 
   const handleCardClick = (department) => {
     navigate(`/complaint-form/${department.name}`, { state: { department } });
+    // navigate(`/complaint-form`);
   };
 
   return (
