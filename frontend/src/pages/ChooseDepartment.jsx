@@ -14,14 +14,8 @@ const DepartmentCards = () => {
       .catch(err => console.error('Error fetching departments:', err));
   }, []);
 
-<<<<<<< HEAD
-  const handleCardClick = (department) => {
-    navigate(`/complaint-form/${department.name}`, { state: { department } });
-    // navigate(`/complaint-form`);
-=======
   const handleCardClick = (departmentName) => {
     navigate(`./complaintform/${departmentName}`);
->>>>>>> 104ecf769ae06be007f2a3258c3a80dc5061569c
   };
 
   return (
