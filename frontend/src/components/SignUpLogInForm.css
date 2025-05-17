@@ -115,7 +115,7 @@ form{ width: 100%; }
 }
 
 .btn:hover{
-    background: #919191;
+    background: #666;
     transition: .3s ease-in-out;
 }
 

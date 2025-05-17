@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Header from "../components/Header.jsx";
 
 const AddOfficer = () => {
   const [officer, setOfficer] = useState({
@@ -33,6 +34,8 @@ const AddOfficer = () => {
   };
 
   return (
+    <div>
+      <Header />
     <div className="container mt-4">
       <h2 className="mb-4">Add Officer</h2>
       <form onSubmit={handleSubmit}>
@@ -87,6 +90,7 @@ const AddOfficer = () => {
           Add Officer
         </button>
       </form>
+    </div>
     </div>
   );
 };

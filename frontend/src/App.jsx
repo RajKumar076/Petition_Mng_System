@@ -30,9 +30,9 @@ function App() {
   // Simulate login and role assignment
   const handleLogin = (role) => {
     setUserRole(role); // Set the user role based on login
-    if (role === "admin") navigate("/admin");
-    else if (role === "officer") navigate("/officer");
-    else if (role === "user") navigate("/user");
+    if (role === "admin") navigate("/admindashboard");
+    else if (role === "officer") navigate("/officerdashboard");
+    else if (role === "user") navigate("/userdashboard");
   };
 
   return (
@@ -41,7 +41,7 @@ function App() {
         <Route path="/" element={<LandingPage />} /> {/* Landing Page */}
         <Route path="/login" element={<LoginSignUpForm onLogin={handleLogin} />} /> {/* Login Page */}
         <Route
-          path="/admin"
+          path="/admindashboard"
           element={
             <ProtectedRoute role={userRole} allowedRole="admin">
               <AdminDashboard />
@@ -49,7 +49,7 @@ function App() {
           }
         />
         <Route
-          path="/officer"
+          path="/officerdashboard"
           element={
             <ProtectedRoute role={userRole} allowedRole="officer">
               <OfficerDashboard />
@@ -57,23 +57,23 @@ function App() {
           }
         />
         <Route
-          path="/user"
+          path="/userdashboard"
           element={
             <ProtectedRoute role={userRole} allowedRole="user">
               <UserDashboard />
             </ProtectedRoute>
           }
         />
-        <Route path="/department/:departmentName" element={<DepartmentInventoryPage />} />
-        <Route path="/view-status" element={<StatusPage />} />
-        <Route path="/choose-department" element={<ChooseDepartment />} />
+        <Route path=":roledashboard/department/:departmentName" element={<DepartmentInventoryPage />} />
+        <Route path="userdashboard/history" element={<StatusPage />} />
+        <Route path="userdashboard/choosedepartment" element={<ChooseDepartment />} />
         {/* <Route path="/complain-form/:departmentName" element={<ComplainFormPage />} /> */}
-        <Route path="/complain-form" element={<ComplainFormPage />} />
-        <Route path="/inventory" element={<Inventory />} /> {/* New Inventory Route */}
-        <Route path="/view-users" element={<ViewUsers />} />
-        <Route path="/view-officers" element={<ViewOfficers />} />
-        <Route path="/add-officer" element={<AddOfficer />} />
-        <Route path="/add-category" element={<AddCategory />} />
+        <Route path="userdashboard/choosedepartment/complaintform/:departmentName" element={<ComplainFormPage />} />
+        <Route path="admindashboard/inventory" element={<Inventory />} /> {/* New Inventory Route */}
+        <Route path="admindashboard/view-users" element={<ViewUsers />} />
+        <Route path="admindashboard/view-officers" element={<ViewOfficers />} />
+        <Route path="admindashboard/add-officer" element={<AddOfficer />} />
+        <Route path="admindashboard/add-category" element={<AddCategory />} />
       </Routes>
     </div>
   );
