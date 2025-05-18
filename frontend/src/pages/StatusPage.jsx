@@ -68,8 +68,8 @@ const StatusPage = () => {
               <table className="table table-bordered align-middle">
                 <thead className="table-light">
                   <tr>
-                    <th>Complaint ID</th>
-                    <th>Complaint Title</th>
+                    <th>Grievance ID</th>
+                    <th>Grievance Title</th>
                     <th>Date of Submit</th>
                     <th>Status</th>
                   </tr>
@@ -97,31 +97,31 @@ const StatusPage = () => {
       </div>
 
       {/* View Status Section */}
-      <h2 className="text-center mb-4" style={{ color: "#9352dd" }}>Track Complaint Status</h2>
+      <h2 className="text-center mb-4" style={{ color: "#9352dd" }}>Track Grievance Status</h2>
       <div className="row justify-content-center">
         <div className="col-md-6">
           <div className="card shadow-sm p-4">
             <div className="form-group mb-3">
-              <label htmlFor="id">Complaint ID</label>
+              <label htmlFor="id">Grievance ID</label>
               <input
                 type="number"
                 id="id"
                 className="form-control"
                 value={id}
                 onChange={(e) => setId(e.target.value)}
-                placeholder="Enter Complaint ID"
+                placeholder="Enter Grievance ID"
                 required
               />
             </div>
             <div className="form-group mb-3">
-              <label htmlFor="complaintName">Complaint Name</label>
+              <label htmlFor="complaintName">Grievance Name</label>
               <input
                 type="text"
                 id="complaintName"
                 className="form-control"
                 value={complaintName}
                 onChange={(e) => setComplaintName(e.target.value)}
-                placeholder="Enter Complaint Name"
+                placeholder="Enter Grievance Name"
                 required
               />
             </div>
