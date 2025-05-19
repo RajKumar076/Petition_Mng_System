@@ -1,10 +1,63 @@
-import React from "react";
-import { useParams } from "react-router-dom"; // Import useParams
-import Header from "../components/Header.jsx";
+import React, { useState } from "react";
+import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
+import Header from "../components/Header";
 
 const SubmitGrievance = () => {
-  const { departmentName } = useParams(); // Extract department name from URL
+  const { departmentName } = useParams();
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    address: "",
+    pincode: "",
+    phone_number: "",
+    incident_date: "",
+    proof_file: "",
+  });
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      proof_file: e.target.files[0],
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const payload = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      payload.append(key, value);
+    });
+
+    try {
+      const token = localStorage.getItem('access_token'); 
+
+      await axios.post(
+        `http://127.0.0.1:8000/api/submit-petition/${departmentName}/`,
+        payload,
+        {
+          headers: {
+            'Authorization': `Token ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      alert("Petition submitted successfully.");
+      navigate("/user-dashboard"); // or wherever appropriate
+    } catch (error) {
+      console.error(error);
+      alert("Failed to submit grievance.");
+    }
+  };
   return (
     <div>
     <Header />
@@ -13,10 +66,11 @@ const SubmitGrievance = () => {
         <h2 className="text-center mb-5 fw-bold">
           📝 Submit Grievance for <span className="text-primary">{departmentName}</span>
         </h2>
+        
         <div className="row justify-content-center">
           <div className="col-md-12 col-lg-12">
             <div className="card shadow rounded-4 p-4 border-0">
-              <form>
+              <form onSubmit={handleSubmit} encType="multipart/form-data">
                 {/* Title */}
                 <div className="form-group mb-3">
                   <label htmlFor="title" className="fw-semibold">
@@ -25,8 +79,10 @@ const SubmitGrievance = () => {
                   <input
                     type="text"
                     id="title"
+                    name="title"
                     className="form-control"
                     placeholder="Enter Complaint Title"
+                    onChange={handleChange}
                     required
                   />
                 </div>
@@ -38,9 +94,11 @@ const SubmitGrievance = () => {
                   </label>
                   <textarea
                     id="description"
+                    name="description"
                     className="form-control"
                     placeholder="Enter Complaint Description"
-                    rows="4"
+                    rows="3"
+                    onChange={handleChange}
                     required
                   ></textarea>
                 </div>
@@ -54,8 +112,10 @@ const SubmitGrievance = () => {
                     <input
                       type="text"
                       id="address"
+                      name="address"
                       className="form-control"
                       placeholder="Enter Address"
+                      onChange={handleChange}
                       required
                     />
                   </div>
@@ -66,14 +126,34 @@ const SubmitGrievance = () => {
                     <input
                       type="text"
                       id="pincode"
+                      name="pincode"
                       className="form-control"
                       placeholder="Pincode"
                       maxLength="6"
+                      onChange={handleChange}
                       required
                     />
                   </div>
                 </div>
 
+                {/* Phone Number */}
+                <div className="form-group mb-3">
+                  <label htmlFor="phone" className="fw-semibold">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone_number"
+                    className="form-control"
+                    placeholder="Enter Phone Number"
+                    maxLength="10"
+                    pattern="[0-9]{10}"
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              
                 {/* Date */}
                 <div className="form-group mb-3">
                   <label htmlFor="incidentDate" className="fw-semibold">
@@ -82,7 +162,9 @@ const SubmitGrievance = () => {
                   <input
                     type="date"
                     id="incidentDate"
+                    name="incident_date"
                     className="form-control"
+                    onChange={handleChange}
                     required
                   />
                 </div>
@@ -95,8 +177,10 @@ const SubmitGrievance = () => {
                   <input
                     type="file"
                     id="documents"
+                    name="proof_file"
                     className="form-control"
-                    multiple
+                    onChange={handleFileChange}
+                    accept=".pdf, .doc, .docx, .jpg, .jpeg, .png"
                   />
                 </div>
 

@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
+
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
@@ -11,8 +14,10 @@ from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 from django.http import JsonResponse
 from rest_framework import generics
-from .models import Department, Profile
-from .serializers import DepartmentSerializer
+from .models import Department, Profile, Petition, OfficerProfile
+from .serializers import DepartmentSerializer, PetitionSerializer
+from django.shortcuts import get_object_or_404
+
 
 # Initially redirect to the landing page in react
 def landing_redirect(request):
@@ -70,15 +75,65 @@ class LoginView(APIView):
         else:
             return JsonResponse({"error": "Invalid credentials"}, status=401)
 
-# class DepartmentListAPIView(APIView):
-#     def get(self, request):
-#         departments = Department.objects.all()
-#         serializer = DepartmentSerializer(departments, many=True)
-#         return Response(serializer.data)
-
 class DepartmentListCreateView(generics.ListCreateAPIView):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
+    permission_classes = [AllowAny]
+
+@api_view(['POST'])
+# @permission_classes([IsAdminUser])  # Only allow admin to add officer
+def add_officer(request):
+    data = request.data
+    try:
+        user = User.objects.create_user(
+            username=data['email'],
+            email=data['email'],
+            password=data['password'],
+            first_name=data['name']
+        )
+        # Assign officer role
+        OfficerProfile.objects.create(user=user, department=data['department'])
+
+        # Optionally, set user_group or role if you're tracking user types
+        user.profile.user_group = 'officer'
+        user.profile.save()
+
+        return Response({'message': 'Officer created'}, status=201)
+    except Exception as e:
+        return Response({'error': str(e)}, status=400)
+
+@api_view(["POST"])
+# @permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
+def submit_petition(request, department_name):
+    print(request.data)
+    print(request.FILES)
+    print("Auth user:", request.user)
+
+
+    user = request.user
+    department = get_object_or_404(Department, name=department_name)
+
+    data = request.data.copy()
+
+    data["user"] = user.id
+    data["department"] = department.id
+
+
+    serializer = PetitionSerializer(data=data)
+    
+    if serializer.is_valid():
+        serializer.save()
+        return Response({"message": "Petition submitted successfully."}, status=201)
+    print(serializer.errors)  # Add this line
+
+    return Response(serializer.errors, status=400)
+
+@api_view(['GET'])
+def get_departments(request):
+    departments = Department.objects.all()
+    serializer = DepartmentSerializer(departments, many=True)
+    return Response(serializer.data)
 
 # from transformers import pipeline
 # import re
