@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import StatsBoxes from "../components/StatsBoxes";
 import LineGraph from "../components/LineGraph";
 import BarGraph from "../components/BarGraph";
+import ChatBot from "../components/ChatBot";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
@@ -65,6 +66,7 @@ const UserDashboard = () => {
           </div>
         </div>
       </div>
+      <ChatBot />
     </div>
   );
 };

@@ -1,6 +1,5 @@
-from django.urls import path, include
-from .views import SignUpView, LoginView, DepartmentListCreateView, submit_petition, get_departments, add_officer
-
+from django.urls import path, include 
+from .views import SignUpView, LoginView, DepartmentListCreateView, submit_petition, get_departments, add_officer, chatbot_view
 
 
 urlpatterns = [
@@ -9,5 +8,7 @@ urlpatterns = [
     path('departments/', DepartmentListCreateView.as_view(), name='department-list-create'),
     path('submit-petition/<str:department_name>/', submit_petition, name='submit-petition'),
     path('add-officer/', add_officer, name='add-officer'),
+    path('chatbot/', chatbot_view, name='chatbot'),
+
     
 ]
