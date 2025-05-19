@@ -59,7 +59,12 @@ const LoginSignUpForm = ({ onLogin }) => {
         }),
       });
       const data = await response.json();
+
       if (response.ok) {
+        // Save the access token (and refresh token if returned)
+        localStorage.setItem("access_token", data.access); // <-- important
+        localStorage.setItem("refresh_token", data.refresh); 
+        
         console.log("Role from backend:", data.role); // Debug log
         alert(data.message);
         onLogin(data.role); // Pass user role to parent component

@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 
@@ -57,21 +58,28 @@ class LoginView(APIView):
         username = request.data.get('username')
         password = request.data.get('password')
         
+        print(username, password)   
         if not username or not password:
             return Response({"error": "Both username and password are required!"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         user = authenticate(username=username, password=password)
+        print(user)
         if user is not None:
+            # Generate tokens
+            refresh = RefreshToken.for_user(user)
+
             if user.is_superuser:
                 role = "admin"
-            elif hasattr(user, 'profile') and user.profile.role:
-                role = user.profile.role  # Assuming a `role` field in profile
+            elif hasattr(user, 'officerprofile'):
+                role = "officer" 
             else:
                 role = "user"  # Default if no role field
 
             return JsonResponse({
                 "message": f"Login successful as {role}",
-                "role": role
+                "role": role,
+                "access": str(refresh.access_token),
+                "refresh": str(refresh)
             }, status=200)
         else:
             return JsonResponse({"error": "Invalid credentials"}, status=401)
@@ -82,36 +90,36 @@ class DepartmentListCreateView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
 
 @api_view(['POST'])
-# @permission_classes([IsAdminUser])  # Only allow admin to add officer
+@permission_classes([IsAuthenticated])  # Only allow admin to add officer
 def add_officer(request):
-    data = request.data
     try:
-        user = User.objects.create_user(
-            username=data['email'],
-            email=data['email'],
-            password=data['password'],
-            first_name=data['name']
-        )
-        # Assign officer role
-        OfficerProfile.objects.create(user=user, department=data['department'])
+        name = request.data.get('name')
+        email = request.data.get('email')
+        password = request.data.get('password')
+        department_id = request.data.get('department')
 
-        # Optionally, set user_group or role if you're tracking user types
-        user.profile.user_group = 'officer'
-        user.profile.save()
+        if not all([name, email, password, department_id]):
+            return Response({"error": "All fields are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(username=name, email=email).exists():
+            return Response({"error": "User already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.create_user(username=name, email=email, password=password, first_name=name)
+        department = Department.objects.get(id=department_id)
+
+        OfficerProfile.objects.create(user=user, department=department)
+
+        Profile.objects.create(user=user, role='officer', department=department)
 
         return Response({'message': 'Officer created'}, status=201)
     except Exception as e:
         return Response({'error': str(e)}, status=400)
 
 @api_view(["POST"])
-# @permission_classes([IsAuthenticated])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
+# @permission_classes([AllowAny])
 def submit_petition(request, department_name):
-    print(request.data)
-    print(request.FILES)
-    print("Auth user:", request.user)
-
-
+    
     user = request.user
     department = get_object_or_404(Department, name=department_name)
 

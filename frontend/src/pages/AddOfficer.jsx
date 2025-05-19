@@ -26,22 +26,30 @@ const AddOfficer = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setOfficer({ ...officer, [name]: value });
+    setOfficer({ ...officer, [name]: name === "department" ? parseInt(value) : value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const token = localStorage.getItem("access_token");  // or wherever you store it
+      if (!token) {
+        alert("You need to log in first.");
+        return;
+      }
       // Replace this with your actual backend API endpoint
       const response = await fetch("http://127.0.0.1:8000/api/add-officer/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           // Add auth token if your endpoint is protected
-          // "Authorization": `Token ${token}`,
+          "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify({ ...officer, role: "officer" }),
+        // body: JSON.stringify({ ...officer, role: "officer" }),
+        body: JSON.stringify(officer),
       });
+      console.log("Sending officer data:", officer);
+
 
       if (response.ok) {
         alert("Officer added successfully!");
