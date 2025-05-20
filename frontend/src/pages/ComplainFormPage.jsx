@@ -46,7 +46,7 @@ const SubmitGrievance = () => {
         payload,
         {
           headers: {
-            'Authorization': `Token ${token}`,
+            'Authorization': `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
