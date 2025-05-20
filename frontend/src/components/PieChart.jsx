@@ -32,6 +32,29 @@ const PieChart = ({ department }) => {
     fetchData();
   }, [department]);
 
+  // Custom label to show percentage inside the pie
+  const renderCustomizedLabel = ({ percent, cx, cy, midAngle, innerRadius, outerRadius, index }) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    // Only show label if the value is not zero
+    return data[index].value > 0 ? (
+      <text
+        x={x}
+        y={y}
+        fill="#fff"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize={14}
+        fontWeight="bold"
+      >
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    ) : null;
+  };
+
   return (
     <RePieChart width={200} height={200}>
       <Pie
@@ -40,7 +63,8 @@ const PieChart = ({ department }) => {
         cy="50%"
         outerRadius={60}
         dataKey="value"
-        label
+        label={renderCustomizedLabel}
+        labelLine={false}
       >
         {data.map((_, index) => (
           <Cell key={index} fill={COLORS[index % COLORS.length]} />

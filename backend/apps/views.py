@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 
 from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 from rest_framework import generics
 
@@ -418,3 +419,42 @@ def chatbot_view(request):
         )
 
     return Response({'reply': reply, 'keywords': keywords})
+
+# User List API View in Admin Dashboard Page
+class UserListView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        users = User.objects.all()
+        user_list = [
+            {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+            }
+            for user in users
+        ]
+        return Response(user_list)
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        # Defensive: handle missing profile
+        profile = getattr(user, "profile", None)
+        data = {
+            "username": user.username,
+            "email": user.email,
+            "role": None,
+            "department": None,
+        }
+        if profile:
+            data["role"] = getattr(profile, "role", None)
+            if data["role"] == "officer":
+                data["department"] = getattr(profile, "department", None)
+        else:
+            data["role"] = "user"
+
+        return Response(data)

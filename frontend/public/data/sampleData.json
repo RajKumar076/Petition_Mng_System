@@ -9,6 +9,56 @@
     "username": "officer",
     "password": "officer123",
     "email": "officer@example.com",
+    "department": "Education",
+    "role": "officer"
+  },
+  {
+    "username": "officer",
+    "password": "officer123",
+    "email": "officer@example.com",
+    "department": "Municipality",
+    "role": "officer"
+  },
+  {
+    "username": "officer",
+    "password": "officer123",
+    "email": "officer@example.com",
+    "department": "Education",
+    "role": "officer"
+  },
+  {
+    "username": "officer",
+    "password": "officer123",
+    "email": "officer@example.com",
+    "department": "Public Health",
+    "role": "officer"
+  },
+  {
+    "username": "officer",
+    "password": "officer123",
+    "email": "officer@example.com",
+    "department": "Public Health",
+    "role": "officer"
+  },
+  {
+    "username": "officer",
+    "password": "officer123",
+    "email": "officer@example.com",
+    "department": "Education",
+    "role": "officer"
+  },
+  {
+    "username": "officer",
+    "password": "officer123",
+    "email": "officer@example.com",
+    "department": "Education",
+    "role": "officer"
+  },
+  {
+    "username": "officer",
+    "password": "officer123",
+    "email": "officer@example.com",
+    "department": "Education",
     "role": "officer"
   },
   {
