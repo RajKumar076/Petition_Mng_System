@@ -53,8 +53,8 @@ const AddCategory = () => {
     <div
       className="d-flex justify-content-center align-items-center"
       style={{
-        minHeight: "100vh",
-        backgroundColor: "#f2f2f2",
+        minHeight: "90vh",
+        // backgroundColor: "#f2f2f2",
         padding: "20px",
         overflowY: "auto",
       }}
@@ -69,7 +69,12 @@ const AddCategory = () => {
           boxShadow: "0 0 15px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <h2 className="mb-4 text-center">Add New Department</h2>
+        <h2 className="mb-4 text-center" style={{
+            textAlign: "center",
+            fontWeight: "bold",
+            color: "#9352dd",
+            letterSpacing: "1px",
+          }}>Add New Department</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="departmentName" className="form-label">

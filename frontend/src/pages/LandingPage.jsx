@@ -82,8 +82,8 @@ const LandingPage = () => {
     borderRadius: "10px", // Add rounded corners to the strap
   }}
 >
-  <h2 className="text-center fw-bold mb-0" style={{ fontSize: "18px" }}>
-    How the System Works
+  <h2 className="text-center fw-bold mb-0" style={{ fontSize: "18px" }} id="aboutus">
+    How our System Works
   </h2>
 </div>
 <div className="d-flex flex-wrap align-items-center justify-content-between my-5" style={{ padding: "0 20px" }}>
@@ -156,7 +156,7 @@ const LandingPage = () => {
     borderRadius: "10px", // Rounded corners
   }}
 >
-  <h2 className="text-center fw-bold mb-0" style={{ fontSize: "18px" }}>
+  <h2 className="text-center fw-bold mb-0" style={{ fontSize: "18px" }} id="solutions">
     Features of Our Solutions
   </h2>
 </div>
