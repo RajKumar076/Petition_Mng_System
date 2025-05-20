@@ -15,6 +15,7 @@ import AddOfficer from "./pages/AddOfficer";
 import AddCategory from "./pages/AddCategory";
 import "./App.css";
 import LoginSignUpForm from "./components/LoginSignUpForm";
+import Profile from "./pages/Profile";
 
 function ProtectedRoute({ role, allowedRole, children }) {
   if (role !== allowedRole) {
@@ -66,6 +67,7 @@ function App() {
         />
         <Route path=":roledashboard/department/:departmentName" element={<DepartmentInventoryPage />} />
         <Route path="userdashboard/history" element={<StatusPage />} />
+        <Route path=":roledashboard/profile" element={<Profile />} />
         <Route path="userdashboard/choosedepartment" element={<ChooseDepartment />} />
         {/* <Route path="/complain-form/:departmentName" element={<ComplainFormPage />} /> */}
         <Route path="userdashboard/choosedepartment/complaintform/:departmentName" element={<ComplainFormPage />} />

@@ -4,9 +4,9 @@ import { Link, useLocation } from "react-router-dom";
 const navLinks = {
   guest: [
     { to: "/", label: "Home" },
-    { to: "/about", label: "About Us" },
-    { to: "/solutions", label: "Solutions" },
-    { to: "/contact", label: "Contact Us" },
+    { to: "#aboutus", label: "About Us", isAnchor: true },
+    { to: "#solutions", label: "Solutions", isAnchor: true },
+    { to: "/login", label: "Login" },
   ],
   user: [
     { to: "/userdashboard", label: "Dashboard" },
@@ -81,17 +81,32 @@ const Header = () => {
           </button>
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto">
-              {links.map((link) => (
-                <li className="nav-item" key={link.label}>
-                  <Link
-                    className={`custom-nav-link nav-link${location.pathname === link.to ? " active" : ""}`}
-                    to={link.to}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+  {links.map((link) => (
+    <li className="nav-item" key={link.label}>
+      {role === "guest" && link.isAnchor ? (
+        <a
+          className={`custom-nav-link nav-link`}
+          href={link.to}
+          onClick={e => {
+            e.preventDefault();
+            const anchorId = link.to.replace("#", "");
+            const el = document.getElementById(anchorId);
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+          }}
+        >
+          {link.label}
+        </a>
+      ) : (
+        <Link
+          className={`custom-nav-link nav-link${location.pathname === link.to ? " active" : ""}`}
+          to={link.to}
+        >
+          {link.label}
+        </Link>
+      )}
+    </li>
+  ))}
+</ul>
           </div>
         </div>
       </nav>

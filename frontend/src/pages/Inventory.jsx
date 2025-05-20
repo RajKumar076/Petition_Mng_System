@@ -33,55 +33,137 @@ const Inventory = () => {
   return (
     <div>
       <Header />
-    <div
-      className="container mt-4"
-      style={{
-        width: "95%", // Occupy 95% of the viewport width
-        height: "95vh", // Occupy 95% of the viewport height
-        margin: "auto", // Center the container horizontally
-        padding: "10px", // Add some padding
-        overflow: "hidden", // Prevent overflow
-      }}
-    >
-      <h2 className="mb-4">All Grievances</h2>
-      {/* Scrollable Table Container */}
       <div
+        className="container-fluid mt-4"
         style={{
-          maxHeight: "90%", // Occupy 90% of the container height
-          overflowY: "auto", // Enable vertical scrolling
+          minHeight: "95vh",
+          margin: "auto",
+          padding: "10px",
         }}
       >
-        <table className="table table-bordered table-striped">
-          <thead
-            className="thead-dark"
-            style={{
-              position: "sticky", // Make the header row fixed
-              top: "0", // Stick to the top of the container
-              zIndex: "1", // Ensure it stays above the table body
-            }}
-          >
-            <tr className="rounded">
-              <th className="bg-secondary text-white">ID</th>
-              <th className="bg-secondary text-white">Title</th>
-              <th className="bg-secondary text-white">Description</th>
-              <th className="bg-secondary text-white">Status</th>
-              <th className="bg-secondary text-white">Department</th> {/* New Department Column */}
+        <h2
+          className="mb-4"
+          style={{
+            textAlign: "center",
+            fontWeight: "bold",
+            color: "#9352dd",
+            letterSpacing: "1px",
+          }}
+        >
+          All Grievances
+        </h2>
+        <table
+          className="table table-bordered table-hover"
+          style={{
+            borderRadius: "18px",
+            fontSize: "1.2rem",
+            tableLayout: "fixed",
+            marginBottom: 0,
+            background: "#fff",
+            // overflow: "hidden",
+          }}
+        >
+          <thead>
+            <tr>
+              <th
+                style={{
+                  borderTopLeftRadius: "18px",
+                  backgroundColor: "#9352dd",
+                  color: "#fff",
+                  textAlign: "center",
+                  fontSize: "1.35rem",
+                  height: "60px",
+                  position: "sticky",
+                  top: 0, // Stick to the very top of the viewport
+                  zIndex: 10,
+                  backgroundClip: "padding-box",
+                }}
+              >
+                ID
+              </th>
+              <th
+                style={{
+                  backgroundColor: "#9352dd",
+                  color: "#fff",
+                  textAlign: "center",
+                  fontSize: "1.35rem",
+                  height: "60px",
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 10,
+                  backgroundClip: "padding-box",
+                }}
+              >
+                Title
+              </th>
+              <th
+                style={{
+                  backgroundColor: "#9352dd",
+                  color: "#fff",
+                  textAlign: "center",
+                  fontSize: "1.35rem",
+                  height: "60px",
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 10,
+                  backgroundClip: "padding-box",
+                }}
+              >
+                Description
+              </th>
+              <th
+                style={{
+                  backgroundColor: "#9352dd",
+                  color: "#fff",
+                  textAlign: "center",
+                  fontSize: "1.35rem",
+                  height: "60px",
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 10,
+                  backgroundClip: "padding-box",
+                }}
+              >
+                Status
+              </th>
+              <th
+                style={{
+                  borderTopRightRadius: "18px",
+                  backgroundColor: "#9352dd",
+                  color: "#fff",
+                  textAlign: "center",
+                  fontSize: "1.35rem",
+                  height: "60px",
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 10,
+                  backgroundClip: "padding-box",
+                }}
+              >
+                Department
+              </th>
             </tr>
           </thead>
           <tbody>
             {grievances.map((grievance, index) => (
-              <tr key={index}>
+              <tr key={index} style={{ textAlign: "center", height: "56px" }}>
                 <td>{grievance.id}</td>
                 <td>{grievance.title}</td>
                 <td>{grievance.description}</td>
                 <td>{grievance.status}</td>
-                <td>{grievance.department}</td> {/* Display Department */}
+                <td>{grievance.department}</td>
               </tr>
             ))}
+            {grievances.length === 0 && (
+              <tr>
+                <td colSpan={5} className="text-center">
+                  No grievances found.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
-    </div>
     </div>
   );
 };
