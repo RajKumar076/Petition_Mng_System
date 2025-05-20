@@ -71,7 +71,8 @@ class LoginView(APIView):
 
             if user.is_superuser:
                 role = "admin"
-            elif hasattr(user, 'officerprofile'):
+            # elif hasattr(user, 'officerprofile'):
+            elif OfficerProfile.objects.filter(user=user).exists():
                 role = "officer" 
             else:
                 role = "user"  # Default if no role field
