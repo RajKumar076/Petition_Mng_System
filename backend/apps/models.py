@@ -12,7 +12,7 @@ class Department(models.Model):
         return self.name
 
 class OfficerProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     department = models.ForeignKey(Department, on_delete=models.CASCADE)
 
     def __str__(self):
