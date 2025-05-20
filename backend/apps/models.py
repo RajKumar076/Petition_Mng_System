@@ -43,10 +43,14 @@ class Petition(models.Model):
     department = models.ForeignKey(Department, on_delete=models.CASCADE)  # Assigned department
     title = models.CharField(max_length=255)
     description = models.TextField()
+    address = models.TextField(default="address")
+    pincode = models.CharField(max_length=6, default="000000")
+    phone_number = models.CharField(max_length=15, default="0000000000")
+    incident_date = models.DateField(null=True, blank=True)  # Date of the incident
     proof_file = models.FileField(upload_to='proofs/', null=True, blank=True)
     date_submitted = models.DateTimeField(auto_now_add=True)
     date_resolved = models.DateTimeField(null=True, blank=True)  # Only for resolved petitions
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     # created_at = models.DateTimeField(auto_now_add=True)
     # updated_at = models.DateTimeField(auto_now=True)
     
