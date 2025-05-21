@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header.jsx";
 import { FaTrash } from "react-icons/fa";
+import axios from "axios";
 
 const ViewOfficers = () => {
   const [officers, setOfficers] = useState([]);
 
   useEffect(() => {
-    // Fetch data from sampleData.json and filter officers
+    // Fetch officers from backend API
     const fetchOfficers = async () => {
       try {
-        const response = await fetch("/data/sampleData.json");
-        const data = await response.json();
-        const filteredOfficers = data.filter((item) => item.role === "officer");
-        setOfficers(filteredOfficers);
+        const token = localStorage.getItem("access_token");
+        const response = await axios.get("http://127.0.0.1:8000/api/officers/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setOfficers(response.data);
       } catch (error) {
         console.error("Error fetching officers:", error);
       }
@@ -46,7 +50,7 @@ const ViewOfficers = () => {
           style={{
             textAlign: "center",
             fontWeight: "bold",
-            color: "#9352dd",
+            color: "#444",
             letterSpacing: "1px",
           }}
         >

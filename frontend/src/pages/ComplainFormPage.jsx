@@ -52,7 +52,7 @@ const SubmitGrievance = () => {
         }
       );
       alert("Petition submitted successfully.");
-      navigate("/user-dashboard"); // or wherever appropriate
+      navigate("/userdashboard"); // or wherever appropriate
     } catch (error) {
       console.error(error);
       alert("Failed to submit grievance.");

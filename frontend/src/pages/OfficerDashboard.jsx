@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import StatsBoxes from "../components/StatsBoxes";
 import LineGraph from "../components/LineGraph";
@@ -8,7 +8,55 @@ import { useNavigate } from "react-router-dom";
 
 const OfficerDashboard = () => {
   const navigate = useNavigate();
-  const department = "Transport";  // make it dynamic
+  const [department, setDepartment] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
+
+ useEffect(() => {
+  const fetchProfile = async () => {
+    try {
+      const username = localStorage.getItem("username");
+      const response = await fetch(`http://127.0.0.1:8000/api/profile/?username=${username}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrorMsg(errorData.detail || "Could not load profile.");
+        setDepartment("");
+      } else {
+        const data = await response.json();
+        setDepartment(data.department || "");
+        setErrorMsg("");
+      }
+    } catch (err) {
+      setDepartment("");
+      setErrorMsg("Network error or server not reachable.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchProfile();
+}, []);
+
+  if (loading) {
+    return (
+      <div>
+        <Header />
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "80vh" }}>
+          <div>Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (errorMsg) {
+    return (
+      <div>
+        <Header />
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "80vh" }}>
+          <div>{errorMsg}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -21,7 +69,7 @@ const OfficerDashboard = () => {
         <div className="row mt-4">
           <div
             className="col-md-6 mb-4"
-            onClick={() => navigate(`./department/${department.toLowerCase()}`)}
+            onClick={() => navigate(`./department/${department}`)}
             style={{ cursor: "pointer" }}
           >
             <div className="card shadow-sm">
@@ -32,7 +80,7 @@ const OfficerDashboard = () => {
           </div>
           <div
             className="col-md-6 mb-4"
-            onClick={() => navigate(`./department/${department.toLowerCase()}`)}
+            onClick={() => navigate(`./department/${department}`)}
             style={{ cursor: "pointer" }}
           >
             <div className="card shadow-sm">

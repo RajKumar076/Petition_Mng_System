@@ -64,6 +64,7 @@ const LoginSignUpForm = ({ onLogin }) => {
         // Save the access token (and refresh token if returned)
         localStorage.setItem("access_token", data.access); // <-- important
         localStorage.setItem("refresh_token", data.refresh); 
+        localStorage.setItem("username", formData.username);
         
         console.log("Role from backend:", data.role); // Debug log
         alert(data.message);

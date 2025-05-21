@@ -32,28 +32,22 @@ const AddOfficer = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("access_token");  // or wherever you store it
+      const token = localStorage.getItem("access_token");
       if (!token) {
         alert("You need to log in first.");
         return;
       }
-      // Replace this with your actual backend API endpoint
       const response = await fetch("http://127.0.0.1:8000/api/add-officer/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Add auth token if your endpoint is protected
           "Authorization": `Bearer ${token}`,
         },
-        // body: JSON.stringify({ ...officer, role: "officer" }),
         body: JSON.stringify(officer),
       });
-      console.log("Sending officer data:", officer);
-
-
       if (response.ok) {
         alert("Officer added successfully!");
-        setOfficer({ name: "", email: "", department: "", password: "" }); // Reset form
+        setOfficer({ name: "", email: "", department: "", password: "" });
       } else {
         const err = await response.json();
         console.error("Server Error:", err);
@@ -64,42 +58,67 @@ const AddOfficer = () => {
       alert("Something went wrong!");
     }
   };
+
   return (
-    <div>
+    <div style={{ minHeight: "100vh" }}>
       <Header />
-    <div className="container mt-4">
-      <h2 className="mb-4">Add Officer</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="name" className="form-label">
-            Name
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="name"
-            name="name"
-            value={officer.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">
-            Email
-          </label>
-          <input
-            type="email"
-            className="form-control"
-            id="email"
-            name="email"
-            value={officer.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="mb-3">
-            <label htmlFor="password" className="form-label">Password</label>
+      <div
+        className="container"
+        style={{
+          maxWidth: "700px",
+          margin: "50px auto",
+          background: "#fff",
+          borderRadius: "18px",
+          boxShadow: "0 2px 16px rgba(0,0,0,0.08)",
+          padding: "32px 24px",
+        }}
+      >
+        <h2
+          style={{
+            textAlign: "center",
+            fontWeight: "bold",
+            color: "#9352dd",
+            marginBottom: "32px",
+            letterSpacing: "1px",
+          }}
+        >
+          Add Officer
+        </h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label htmlFor="name" className="form-label" style={{ fontWeight: 500 }}>
+              Name
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="name"
+              name="name"
+              value={officer.name}
+              onChange={handleChange}
+              required
+              style={{ borderRadius: "8px" }}
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="email" className="form-label" style={{ fontWeight: 500 }}>
+              Email
+            </label>
+            <input
+              type="email"
+              className="form-control"
+              id="email"
+              name="email"
+              value={officer.email}
+              onChange={handleChange}
+              required
+              style={{ borderRadius: "8px" }}
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="password" className="form-label" style={{ fontWeight: 500 }}>
+              Password
+            </label>
             <input
               type="password"
               className="form-control"
@@ -108,24 +127,48 @@ const AddOfficer = () => {
               value={officer.password}
               onChange={handleChange}
               required
+              style={{ borderRadius: "8px" }}
             />
           </div>
-        {/* Department Dropdown */}
           <div className="mb-3">
-            <label htmlFor="department" className="form-label">Department</label>
-            <select className="form-control" name="department" value={officer.department} onChange={handleChange} required>
+            <label htmlFor="department" className="form-label" style={{ fontWeight: 500 }}>
+              Department
+            </label>
+            <select
+              className="form-control"
+              name="department"
+              value={officer.department}
+              onChange={handleChange}
+              required
+              style={{ borderRadius: "8px" }}
+            >
               <option value="">Select Department</option>
               {departments.map((dept) => (
-                <option key={dept.id} value={dept.id}>{dept.name}</option>
+                <option key={dept.id} value={dept.id}>
+                  {dept.name}
+                </option>
               ))}
             </select>
           </div>
-
-        <button type="submit" className="btn btn-primary">
-          Add Officer
-        </button>
-      </form>
-    </div>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={{
+              width: "100%",
+              // background: "#9352dd",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: 600,
+              fontSize: "1.1rem",
+              padding: "10px 0",
+              marginTop: "18px",
+              letterSpacing: "1px",
+            }}
+          >
+            Add Officer
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

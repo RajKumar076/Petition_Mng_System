@@ -17,8 +17,9 @@ from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 from rest_framework import generics
 
+
 from .models import Department, Profile, Petition, OfficerProfile, AIAnalysedPetition
-from .serializers import DepartmentSerializer, PetitionSerializer
+from .serializers import DepartmentSerializer, PetitionSerializer, OfficerProfileSerializer
 from .petition_analysis import PetitionAnalyzer 
 from django.shortcuts import get_object_or_404
 
@@ -464,25 +465,50 @@ class UserListView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
+        from .models import Petition  # Import here to avoid circular import
         users = User.objects.all()
-        user_list = [
-            {
+        user_list = []
+        for user in users:
+            profile = getattr(user, "profile", None)
+            role = getattr(profile, "role", "user") if profile else "user"
+            if user.is_superuser or role in ["officer", "admin"]:
+                continue
+            petitions = Petition.objects.filter(user=user)
+            petition_count = petitions.count()
+            petitions_solved = petitions.filter(status="solved").count()
+            user_list.append({
                 "id": user.id,
                 "username": user.username,
                 "email": user.email,
-            }
-            for user in users
-        ]
+                "role": role,
+                "petition_count": petition_count,
+                "petitions_solved": petitions_solved,
+            })
         return Response(user_list)
     
 @permission_classes([IsAuthenticated])
 class ProfileView(APIView):
-    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
+        # Get username or email from query params
+        username = request.GET.get("username")
+        email = request.GET.get("email")
 
-        # Defensive: handle missing profile
+        user = None
+        if username:
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                return Response({"error": "User not found"}, status=404)
+        elif email:
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                return Response({"error": "User not found"}, status=404)
+        else:
+            return Response({"error": "Username or email required"}, status=400)
+
+        # Fetch from the Profile model
         profile = getattr(user, "profile", None)
         data = {
             "username": user.username,
@@ -492,9 +518,149 @@ class ProfileView(APIView):
         }
         if profile:
             data["role"] = getattr(profile, "role", None)
-            if data["role"] == "officer":
-                data["department"] = getattr(profile, "department", None)
+            department = getattr(profile, "department", None)
+            if department:
+                data["department"] = getattr(department, "name", str(department))
         else:
             data["role"] = "user"
 
         return Response(data)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def department_complaints(request):
+    """
+    Fetch all grievances (petitions) for a department.
+    Use ?department=DepartmentName in the query params.
+    This can be used for the PieChart or department table on click.
+    """
+    department_name = request.GET.get("department")
+    if not department_name:
+        return Response({"error": "Department name is required."}, status=400)
+
+    try:
+        department = Department.objects.get(name__iexact=department_name)
+    except Department.DoesNotExist:
+        return Response([], status=200)
+
+    complaints = Petition.objects.filter(department=department)
+    serializer = PetitionSerializer(complaints, many=True)
+    return Response(serializer.data)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_complaint_status(request, pk):
+    user = request.user
+    if hasattr(user, "profile") and user.profile.role == "officer":
+        try:
+            petition = Petition.objects.get(pk=pk)
+            new_status = request.data.get("status")
+            if new_status in ["solved", "rejected"]:
+                petition.status = new_status
+                petition.save()
+                return Response({"success": True})
+            return Response({"error": "Invalid status"}, status=400)
+        except Petition.DoesNotExist:
+            return Response({"error": "Not found"}, status=404)
+    return Response({"error": "Forbidden"}, status=403)
+
+@api_view(['GET'])
+def user_complaint_history(request):
+    username = request.GET.get('username')
+    if not username:
+        return Response({"detail": "Username is required."}, status=status.HTTP_400_BAD_REQUEST)
+    petitions = Petition.objects.filter(user__username=username).order_by('-id')
+    serializer = PetitionSerializer(petitions, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_officers(request):
+    officers = OfficerProfile.objects.select_related('user', 'department').all()
+    data = [
+        {
+            "id": officer.user.id,
+            "username": officer.user.username,
+            "email": officer.user.email,
+            "department": officer.department.name if officer.department else "",
+        }
+        for officer in officers
+    ]
+    return Response(data)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])  # Or [IsAuthenticated] if you want to restrict
+def all_grievances(request):
+    petitions = Petition.objects.select_related('department').all().order_by('-id')
+    data = [
+        {
+            "id": petition.id,
+            "title": petition.title,
+            "description": petition.description,
+            "status": petition.status,
+            "department": petition.department.name if petition.department else "",
+        }
+        for petition in petitions
+    ]
+    return Response(data)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_departments(request):
+    departments = Department.objects.all()
+    data = [{"name": dept.name} for dept in departments]
+    return Response(data)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def department_stats(request, department_name=None):
+    """
+    Returns stats for all departments or a specific department.
+    If department_name is None or "all", returns stats for all departments.
+    """
+    if department_name is None or department_name.lower() == "all":
+        petitions = Petition.objects.all()
+    else:
+        petitions = Petition.objects.filter(department__name__iexact=department_name)
+
+    total = petitions.count()
+    solved = petitions.filter(status="solved").count()
+    pending = petitions.filter(status="pending").count()
+    rejected = petitions.filter(status="rejected").count()
+
+    return Response({
+        "total": total,
+        "solved": solved,
+        "pending": pending,
+        "rejected": rejected,
+    })
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def department_pie_data(request, department_name):
+    """
+    Returns counts for each status for the given department.
+    Used for PieChart in the frontend.
+    """
+    if department_name.lower() == "all":
+        petitions = Petition.objects.all()
+    else:
+        try:
+            department = Department.objects.get(name__iexact=department_name)
+            petitions = Petition.objects.filter(department=department)
+        except Department.DoesNotExist:
+            return Response({"error": "Department not found."}, status=404)
+
+    solved = petitions.filter(status__iexact="solved").count()
+    pending = petitions.filter(status__iexact="pending").count()
+    rejected = petitions.filter(status__iexact="rejected").count()
+    unsolved = petitions.exclude(status__iexact="solved").exclude(status__iexact="pending").exclude(status__iexact="rejected").count()
+
+    data = [
+        {"name": "Solved", "value": solved},
+        {"name": "Pending", "value": pending},
+        {"name": "Rejected", "value": rejected},
+        {"name": "Unsolved", "value": unsolved},
+    ]
+    return Response(data)
+

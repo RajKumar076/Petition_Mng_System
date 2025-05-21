@@ -9,9 +9,8 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/profile/", {
-          credentials: "include",
-        });
+        const username = localStorage.getItem("username");
+        const response = await fetch(`http://127.0.0.1:8000/api/profile/?username=${username}`);
         if (!response.ok) {
           const errorData = await response.json();
           setErrorMsg(errorData.detail || "Could not load profile.");

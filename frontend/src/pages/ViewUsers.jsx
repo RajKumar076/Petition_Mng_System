@@ -5,12 +5,12 @@ const ViewUsers = () => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    // Fetch user data from backend API (SQL database)
+    // Fetch user data with petition stats from backend API
     const fetchUsers = async () => {
       try {
         const response = await fetch("http://127.0.0.1:8000/api/users/");
         const data = await response.json();
-        // Filter out superusers and officers/admins (assuming role field exists)
+        // Filter out superusers, officers, and admins (assuming role field exists)
         const filtered = Array.isArray(data)
           ? data.filter(
               (user) =>
@@ -37,7 +37,7 @@ const ViewUsers = () => {
           style={{
             textAlign: "center",
             fontWeight: "bold",
-            color: "#9352dd",
+            color: "#444",
             letterSpacing: "1px",
           }}
         >
@@ -52,7 +52,6 @@ const ViewUsers = () => {
               tableLayout: "fixed",
               marginBottom: 0,
               background: "#fff",
-              // overflow: "hidden",
             }}
           >
             <thead>
@@ -66,7 +65,7 @@ const ViewUsers = () => {
                     fontSize: "1.35rem",
                     height: "60px",
                     position: "sticky",
-                    top: 0, // Adjust if you have a fixed header/navbar
+                    top: 0,
                     zIndex: 10,
                     backgroundClip: "padding-box",
                   }}
@@ -142,8 +141,12 @@ const ViewUsers = () => {
                   <td>{idx + 1}</td>
                   <td>{user.username}</td>
                   <td>{user.email}</td>
-                  <td>0</td>
-                  <td>Not Available</td>
+                  <td>{user.petition_count ?? 0}</td>
+                  <td>
+                    {user.petition_count
+                      ? `${user.petitions_solved ?? 0}/${user.petition_count} Solved`
+                      : "0/0 Solved"}
+                  </td>
                 </tr>
               ))}
               {users.length === 0 && (
