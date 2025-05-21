@@ -1,11 +1,5 @@
-<<<<<<< HEAD
-from django.urls import path, include
-from .views import SignUpView, LoginView, UserListView, ProfileView, DepartmentListCreateView
-from .views import chatbot_view
-=======
 from django.urls import path, include 
-from .views import SignUpView, LoginView, DepartmentListCreateView, submit_petition, get_departments, add_officer, chatbot_view
->>>>>>> 4efa35448653ad882b30a9bd84e038c48a06182c
+from .views import SignUpView, LoginView, DepartmentListCreateView, submit_petition, get_departments, add_officer, chatbot_view, UserListView, ProfileView
 
 
 urlpatterns = [

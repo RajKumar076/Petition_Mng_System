@@ -17,8 +17,9 @@ from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 from rest_framework import generics
 
-from .models import Department, Profile, Petition, OfficerProfile
+from .models import Department, Profile, Petition, OfficerProfile, AIAnalysedPetition
 from .serializers import DepartmentSerializer, PetitionSerializer
+from .petition_analysis import PetitionAnalyzer 
 from django.shortcuts import get_object_or_404
 
 
@@ -134,10 +135,47 @@ def submit_petition(request, department_name):
     serializer = PetitionSerializer(data=data)
     
     if serializer.is_valid():
-        serializer.save()
-        return Response({"message": "Petition submitted successfully."}, status=201)
-    print(serializer.errors)  # Add this line
+        petition = serializer.save()
 
+        # Analyze petition automatically
+
+        analyzer = PetitionAnalyzer()
+        description = petition.description
+
+        # Get existing petition descriptions (excluding the current one to avoid self-match)
+        existing_texts = list(
+            Petition.objects.exclude(id=petition.id).values_list('description', flat=True)
+        )
+
+        sentiment = analyzer.analyze_sentiment(description)
+        priority = analyzer.prioritize_petition(description)
+        is_spam = analyzer.is_duplicate(description, existing_texts)
+
+        #To mark it as per the sentiment of the text
+        sentiment = (
+            'Positive' if sentiment == 'POSITIVE' else
+            'Negative' if sentiment == 'NEGATIVE' else
+            'Neutral'
+        )
+
+        # Save to AnalysedPetition table
+        AIAnalysedPetition.objects.create(
+            petition=petition,
+            priority=priority,
+            sentiment=sentiment,
+            is_spam=is_spam
+        )
+
+        return Response({
+            "message": "Petition submitted and analyzed successfully.",
+            "analysis": {
+                "priority": priority,
+                "sentiment": sentiment,
+                "is_spam": is_spam
+            }
+        }, status=201)
+    
+    print(serializer.errors)  # Added for debugging
     return Response(serializer.errors, status=400)
 
 @api_view(['GET'])
@@ -436,9 +474,10 @@ class UserListView(APIView):
             for user in users
         ]
         return Response(user_list)
-
+    
+@permission_classes([IsAuthenticated])
 class ProfileView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
