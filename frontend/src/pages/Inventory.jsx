@@ -5,30 +5,19 @@ const Inventory = () => {
   const [grievances, setGrievances] = useState([]);
 
   useEffect(() => {
-    // Fetch grievances from JSON files for all departments
-    const fetchGrievances = async () => {
-      try {
-        const departments = ["Health", "Education", "Transport", "Sanitation"];
-        const allGrievances = [];
+  const fetchGrievances = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/all-grievances/");
+      const data = await response.json();
+      setGrievances(data);
+    } catch (error) {
+      console.error("Error fetching grievances:", error);
+      setGrievances([]);
+    }
+  };
 
-        for (const dept of departments) {
-          const response = await fetch(`/data/${dept.toLowerCase()}.json`);
-          const data = await response.json();
-          const grievancesWithDept = data.map((grievance) => ({
-            ...grievance,
-            department: dept, // Add department name to each grievance
-          }));
-          allGrievances.push(...grievancesWithDept);
-        }
-
-        setGrievances(allGrievances);
-      } catch (error) {
-        console.error("Error fetching grievances:", error);
-      }
-    };
-
-    fetchGrievances();
-  }, []);
+  fetchGrievances();
+}, []);
 
   return (
     <div>

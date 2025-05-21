@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import PieChart from "../components/PieChart";
 import { useNavigate } from "react-router-dom";
@@ -6,11 +6,28 @@ import StatsBoxes from "../components/StatsBoxes";
 import LineGraph from "../components/LineGraph";
 import BarGraph from "../components/BarGraph";
 
-const departments = ["Health", "Education", "Transport", "Sanitation"];
-
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const department = "all"; // Special flag to indicate total from all departments
+
+  // State to hold department names fetched from backend
+  const [departments, setDepartments] = useState([]);
+
+  useEffect(() => {
+    // Fetch department list from backend
+    const fetchDepartments = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/departments/");
+        const data = await response.json();
+        // Assuming backend returns [{name: "Health"}, ...]
+        setDepartments(data.map((dept) => dept.name));
+      } catch (error) {
+        console.error("Error fetching departments:", error);
+        setDepartments([]);
+      }
+    };
+    fetchDepartments();
+  }, []);
 
   return (
     <div>
@@ -39,7 +56,6 @@ const AdminDashboard = () => {
             overflowY: "auto", // Enable scrolling within the sidebar if content overflows
           }}
         >
-          {/* <h4 className="text-center mb-4 mt-3">Admin Panel</h4> */}
           <ul className="nav flex-column">
             <li className="nav-item mb-2">
               <button
@@ -102,6 +118,7 @@ const AdminDashboard = () => {
             <div className="col-md-6 mb-4">
               <div className="card shadow-sm">
                 <div className="card-body">
+                  {/* Pass department="all" to show overall data */}
                   <LineGraph department={department} />
                 </div>
               </div>
@@ -120,12 +137,13 @@ const AdminDashboard = () => {
               <div
                 key={dept}
                 className="col-md-3 mb-4"
-                onClick={() => navigate(`./department/${dept.toLowerCase()}`)}
+                onClick={() => navigate(`./department/${dept}`)}
                 style={{ cursor: "pointer" }}
               >
                 <div className="card shadow-sm h-100">
                   <div className="card-body text-center">
                     <h5 className="card-title text-primary">{dept} Department</h5>
+                    {/* Pass department name to PieChart to fetch and analyze data for that department */}
                     <PieChart department={dept} />
                   </div>
                 </div>

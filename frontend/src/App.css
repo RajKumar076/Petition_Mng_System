@@ -36,3 +36,10 @@
     transform: rotate(360deg);
   }
 } */
+
+td span[role="img"]:hover + .solved-tooltip,
+td span[role="img"]:focus + .solved-tooltip,
+td span[role="img"]:hover + .rejected-tooltip,
+td span[role="img"]:focus + .rejected-tooltip {
+  visibility: visible !important;
+}

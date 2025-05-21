@@ -8,22 +8,10 @@ const PieChart = ({ department }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`/data/${department.toLowerCase()}.json`);
-        const departmentData = await response.json();
-
-        // Calculate the counts for each status
-        const solved = departmentData.filter((item) => item.status === "Solved").length;
-        const pending = departmentData.filter((item) => item.status === "Pending").length;
-        const rejected = departmentData.filter((item) => item.status === "Rejected").length;
-        const unsolved = departmentData.filter((item) => item.status === "Unsolved").length;
-
-        // Set the data for the pie chart
-        setData([
-          { name: "Solved", value: solved },
-          { name: "Pending", value: pending },
-          { name: "Rejected", value: rejected },
-          { name: "Unsolved", value: unsolved },
-        ]);
+        const response = await fetch(`http://127.0.0.1:8000/api/department-pie/${department}/`);
+        const pieData = await response.json();
+        // pieData should already be in the format: [{ name: "Solved", value: ... }, ...]
+        setData(pieData);
       } catch (err) {
         console.error("Error fetching pie chart data:", err);
       }
@@ -40,7 +28,7 @@ const PieChart = ({ department }) => {
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
     // Only show label if the value is not zero
-    return data[index].value > 0 ? (
+    return data[index] && data[index].value > 0 ? (
       <text
         x={x}
         y={y}
