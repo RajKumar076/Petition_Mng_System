@@ -1,6 +1,5 @@
 from django.urls import path, include 
-from .views import SignUpView, LoginView, DepartmentListCreateView, submit_petition, get_departments, add_officer, chatbot_view, UserListView, ProfileView
-from .views import department_complaints, update_complaint_status
+from .views import SignUpView, LoginView, DepartmentListCreateView, submit_petition, get_departments, add_officer, chatbot_view, UserListView, ProfileView, department_complaints, update_complaint_status
 from . import views
 
 urlpatterns = [
