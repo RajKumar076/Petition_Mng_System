@@ -17,7 +17,8 @@ const navLinks = {
   ],
   officer: [
     { to: "/officerdashboard", label: "Dashboard" },
-    { to: "/officerdashboard/department/:departmentName", label: "Grievances" },
+    // We'll handle the department name dynamically below
+    { to: "/officerdashboard/department", label: "Grievances", isDepartment: true },
     { to: "/officerdashboard/profile", label: "Profile" },
     { to: "/", label: "Logout" },
   ],
@@ -46,6 +47,12 @@ const Header = () => {
   // Determine role from URL path
   const role = getRoleFromPath(location.pathname);
   const links = navLinks[role] || navLinks.guest;
+
+  // Get officer department from localStorage for dynamic link
+  let officerDepartment = "";
+  if (role === "officer") {
+    officerDepartment = localStorage.getItem("department") || "";
+  }
 
   return (
     <>
@@ -81,32 +88,43 @@ const Header = () => {
           </button>
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav ms-auto">
-  {links.map((link) => (
-    <li className="nav-item" key={link.label}>
-      {role === "guest" && link.isAnchor ? (
-        <a
-          className={`custom-nav-link nav-link`}
-          href={link.to}
-          onClick={e => {
-            e.preventDefault();
-            const anchorId = link.to.replace("#", "");
-            const el = document.getElementById(anchorId);
-            if (el) el.scrollIntoView({ behavior: "smooth" });
-          }}
-        >
-          {link.label}
-        </a>
-      ) : (
-        <Link
-          className={`custom-nav-link nav-link${location.pathname === link.to ? " active" : ""}`}
-          to={link.to}
-        >
-          {link.label}
-        </Link>
-      )}
-    </li>
-  ))}
-</ul>
+              {links.map((link) => (
+                <li className="nav-item" key={link.label}>
+                  {role === "guest" && link.isAnchor ? (
+                    <a
+                      className={`custom-nav-link nav-link`}
+                      href={link.to}
+                      onClick={e => {
+                        e.preventDefault();
+                        const anchorId = link.to.replace("#", "");
+                        const el = document.getElementById(anchorId);
+                        if (el) el.scrollIntoView({ behavior: "smooth" });
+                      }}
+                    >
+                      {link.label}
+                    </a>
+                  ) : role === "officer" && link.isDepartment ? (
+                    <Link
+                      className={`custom-nav-link nav-link${location.pathname.startsWith("/officerdashboard/department") ? " active" : ""}`}
+                      to={
+                        officerDepartment
+                          ? `/officerdashboard/department/${encodeURIComponent(officerDepartment)}`
+                          : "/officerdashboard"
+                      }
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <Link
+                      className={`custom-nav-link nav-link${location.pathname === link.to ? " active" : ""}`}
+                      to={link.to}
+                    >
+                      {link.label}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </nav>

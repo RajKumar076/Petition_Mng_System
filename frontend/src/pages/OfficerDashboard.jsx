@@ -12,35 +12,61 @@ const OfficerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
- useEffect(() => {
-  const fetchProfile = async () => {
-    try {
-      const username = localStorage.getItem("username");
-      const response = await fetch(`http://127.0.0.1:8000/api/profile/?username=${username}`);
-      if (!response.ok) {
-        const errorData = await response.json();
-        setErrorMsg(errorData.detail || "Could not load profile.");
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const username = localStorage.getItem("username");
+        const token = localStorage.getItem("access_token");
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/profile/?username=${username}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (!response.ok) {
+          const errorData = await response.json();
+          setErrorMsg(errorData.detail || "Could not load profile.");
+          setDepartment("");
+        } else {
+          const data = await response.json();
+
+          if (data.department) {
+            const deptName =
+              typeof data.department === "object" && data.department !== null
+                ? data.department.name
+                : data.department;
+            setDepartment(deptName || "");
+            localStorage.setItem("department", deptName || "");
+          }
+          // Handle department as object or string
+          if (typeof data.department === "object" && data.department !== null) {
+            setDepartment(data.department.name || "");
+          } else {
+            setDepartment(data.department || "");
+          }
+          setErrorMsg("");
+        }
+      } catch (err) {
         setDepartment("");
-      } else {
-        const data = await response.json();
-        setDepartment(data.department || "");
-        setErrorMsg("");
+        setErrorMsg("Network error or server not reachable.");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setDepartment("");
-      setErrorMsg("Network error or server not reachable.");
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchProfile();
-}, []);
+    };
+    fetchProfile();
+  }, []);
 
   if (loading) {
     return (
       <div>
         <Header />
-        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "80vh" }}>
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ minHeight: "80vh" }}
+        >
           <div>Loading...</div>
         </div>
       </div>
@@ -51,7 +77,10 @@ const OfficerDashboard = () => {
     return (
       <div>
         <Header />
-        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "80vh" }}>
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ minHeight: "80vh" }}
+        >
           <div>{errorMsg}</div>
         </div>
       </div>
