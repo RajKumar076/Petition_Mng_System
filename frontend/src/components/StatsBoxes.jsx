@@ -9,46 +9,37 @@ const StatsBoxes = ({ department }) => {
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      const departments = ["health", "education", "transport", "sanitation"];
-      let combinedData = [];
-
-      if (department === "all") {
-        // Fetch data from all departments
-        for (const dept of departments) {
-          try {
-            const response = await fetch(`/data/${dept}.json`);
-            const data = await response.json();
-            combinedData = [...combinedData, ...data];
-          } catch (err) {
-            console.error(`Error loading data for ${dept}:`, err);
-          }
+    const fetchStats = async () => {
+      try {
+        const token = localStorage.getItem("access_token");
+        let url = "http://127.0.0.1:8000/api/stats/";
+        if (department && department !== "all") {
+          url += `?department=${encodeURIComponent(department)}`;
         }
-      } else {
-        // Fetch data for a specific department
-        try {
-          const response = await fetch(`/data/${department.toLowerCase()}.json`);
-          combinedData = await response.json();
-        } catch (err) {
-          console.error(`Error loading data for ${department}:`, err);
-        }
+        const response = await fetch(url, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+          credentials: "include",
+        });
+        const data = await response.json();
+        setStats({
+          totalComplaints: data.total_complaints || 0,
+          solvedComplaints: data.solved_complaints || 0,
+          pendingComplaints: data.pending_complaints || 0,
+          rejectedComplaints: data.rejected_complaints || 0,
+        });
+      } catch (err) {
+        setStats({
+          totalComplaints: 0,
+          solvedComplaints: 0,
+          pendingComplaints: 0,
+          rejectedComplaints: 0,
+        });
       }
-
-      // Calculate statistics
-      const totalComplaints = combinedData.length;
-      const solvedComplaints = combinedData.filter((c) => c.status === "Solved").length;
-      const pendingComplaints = combinedData.filter((c) => c.status === "Pending").length;
-      const rejectedComplaints = combinedData.filter((c) => c.status === "Rejected").length;
-
-      setStats({
-        totalComplaints,
-        solvedComplaints,
-        pendingComplaints,
-        rejectedComplaints,
-      });
     };
-
-    fetchData();
+    fetchStats();
   }, [department]);
 
   return (

@@ -24,6 +24,9 @@ from .petition_analysis import PetitionAnalyzer
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
+from django.db.models import Count
+from django.utils import timezone
+from datetime import timedelta
 
 # Initially redirect to the landing page in react
 def landing_redirect(request):
@@ -615,8 +618,11 @@ def update_complaint_status(request, pk):
         try:
             petition = Petition.objects.get(pk=pk)
             new_status = request.data.get("status")
+            date_resolved = request.data.get("date_resolved")
             if new_status in ["solved", "rejected"]:
                 petition.status = new_status
+                if date_resolved:
+                    petition.date_resolved = date_resolved
                 petition.save()
                 return Response({"success": True})
             return Response({"error": "Invalid status"}, status=400)
@@ -724,3 +730,121 @@ def department_pie_data(request, department_name):
     ]
     return Response(data)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def line_graph_data(request):
+    """
+    Returns weekly insight for solved and unsolved petitions.
+    - Admin/User: all departments
+    - Officer: only their department
+    """
+    user = request.user
+    role = getattr(getattr(user, "profile", None), "role", None)
+    department_name = request.GET.get("department")  # for officer dashboard
+
+    today = timezone.now().date()
+    start_date = today - timedelta(days=6)  # last 7 days including today
+
+    if role == "officer":
+        # Officer: only their department
+        department = getattr(getattr(user, "profile", None), "department", None)
+        if not department:
+            return Response({"error": "No department assigned."}, status=400)
+        petitions = Petition.objects.filter(department=department, date_resolved__date__gte=start_date)
+    else:
+        # Admin/User: all departments
+        petitions = Petition.objects.filter(date_resolved__date__gte=start_date)
+
+    # Prepare data for each day
+    result = []
+    for i in range(7):
+        day = start_date + timedelta(days=i)
+        solved_count = petitions.filter(status="solved", date_resolved__date=day).count()
+        unsolved_count = petitions.exclude(status="solved").filter(date_submitted__date=day).count()
+        result.append({
+            "date": day.strftime("%Y-%m-%d"),
+            "solved": solved_count,
+            "unsolved": unsolved_count,
+        })
+    return Response(result)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def bar_graph_data(request):
+    """
+    Returns monthly trends for rejected and pending petitions.
+    - Admin/User: all departments
+    - Officer: only their department
+    """
+    user = request.user
+    role = getattr(getattr(user, "profile", None), "role", None)
+    department_name = request.GET.get("department")  # for officer dashboard
+
+    today = timezone.now().date()
+    start_month = today.replace(day=1) - timedelta(days=30*5)  # last 6 months
+
+    if role == "officer":
+        department = getattr(getattr(user, "profile", None), "department", None)
+        if not department:
+            return Response({"error": "No department assigned."}, status=400)
+        petitions = Petition.objects.filter(department=department, date_submitted__date__gte=start_month)
+    else:
+        petitions = Petition.objects.filter(date_submitted__date__gte=start_month)
+
+    # Prepare data for each month
+    result = []
+    for i in range(6):
+        month_start = (today.replace(day=1) - timedelta(days=30*i)).replace(day=1)
+        month_end = (month_start + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+        rejected_count = petitions.filter(status="rejected", date_resolved__date__gte=month_start, date_resolved__date__lte=month_end).count()
+        pending_count = petitions.filter(status="pending", date_submitted__date__gte=month_start, date_submitted__date__lte=month_end).count()
+        result.append({
+            "month": month_start.strftime("%Y-%m"),
+            "rejected": rejected_count,
+            "pending": pending_count,
+        })
+    result.reverse()  # So the earliest month is first
+    return Response(result)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def stats_view(request):
+    """
+    Returns stats for all complaints (admin/user) or for officer's department.
+    - If ?department=DeptName is provided, filter by department.
+    - If officer, always filter by their department.
+    """
+    user = request.user
+    role = getattr(getattr(user, "profile", None), "role", None)
+    department_name = request.GET.get("department")
+
+    if role == "officer":
+        department = getattr(getattr(user, "profile", None), "department", None)
+        if not department:
+            return Response({"error": "No department assigned."}, status=400)
+        petitions = Petition.objects.filter(department=department)
+    elif department_name:
+        try:
+            department = Department.objects.get(name__iexact=department_name)
+            petitions = Petition.objects.filter(department=department)
+        except Department.DoesNotExist:
+            return Response({
+                "total_complaints": 0,
+                "solved_complaints": 0,
+                "pending_complaints": 0,
+                "rejected_complaints": 0,
+            })
+    else:
+        petitions = Petition.objects.all()
+
+    total = petitions.count()
+    solved = petitions.filter(status__iexact="solved").count()
+    pending = petitions.filter(status__iexact="pending").count()
+    rejected = petitions.filter(status__iexact="rejected").count()
+
+    return Response({
+        "total_complaints": total,
+        "solved_complaints": solved,
+        "pending_complaints": pending,
+        "rejected_complaints": rejected,
+    })

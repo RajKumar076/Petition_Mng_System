@@ -8,10 +8,13 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const OfficerDashboard = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // <-- Remove this line
   const [department, setDepartment] = useState("");
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+  const [lineGraphData, setLineGraphData] = useState([]);
+  const [barGraphData, setBarGraphData] = useState([]);
+  const [loadingGraphs, setLoadingGraphs] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -33,21 +36,12 @@ const OfficerDashboard = () => {
           setDepartment("");
         } else {
           const data = await response.json();
-
-          if (data.department) {
-            const deptName =
-              typeof data.department === "object" && data.department !== null
-                ? data.department.name
-                : data.department;
-            setDepartment(deptName || "");
-            localStorage.setItem("department", deptName || "");
-          }
-          // Handle department as object or string
-          if (typeof data.department === "object" && data.department !== null) {
-            setDepartment(data.department.name || "");
-          } else {
-            setDepartment(data.department || "");
-          }
+          const deptName =
+            typeof data.department === "object" && data.department !== null
+              ? data.department.name
+              : data.department;
+          setDepartment(deptName || "");
+          localStorage.setItem("department", deptName || "");
           setErrorMsg("");
         }
       } catch (err) {
@@ -59,6 +53,48 @@ const OfficerDashboard = () => {
     };
     fetchProfile();
   }, []);
+
+  useEffect(() => {
+    // Fetch line graph and bar graph data for officer's department
+    if (!department) return;
+    const fetchGraphs = async () => {
+      setLoadingGraphs(true);
+      try {
+        const token = localStorage.getItem("access_token");
+        const [lineRes, barRes] = await Promise.all([
+          fetch(
+            `http://127.0.0.1:8000/api/line-graph-data/?department=${encodeURIComponent(department)}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: token ? `Bearer ${token}` : undefined,
+              },
+              credentials: "include",
+            }
+          ),
+          fetch(
+            `http://127.0.0.1:8000/api/bar-graph-data/?department=${encodeURIComponent(department)}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: token ? `Bearer ${token}` : undefined,
+              },
+              credentials: "include",
+            }
+          ),
+        ]);
+        const lineData = await lineRes.json();
+        const barData = await barRes.json();
+        setLineGraphData(lineData);
+        setBarGraphData(barData);
+      } catch (err) {
+        setLineGraphData([]);
+        setBarGraphData([]);
+      }
+      setLoadingGraphs(false);
+    };
+    fetchGraphs();
+  }, [department]);
 
   const [petitions, setPetitions] = useState([]);
   // const [loading, setLoading] = useState(true);
@@ -133,38 +169,36 @@ const OfficerDashboard = () => {
 
         {/* Graphs */}
         <div className="row mt-4">
-          <div
-            className="col-md-6 mb-4"
-            onClick={() => navigate(`./department/${department}`)}
-            style={{ cursor: "pointer" }}
-          >
+          <div className="col-md-6 mb-4">
             <div className="card shadow-sm">
               <div className="card-body">
-                <LineGraph department={department} />
+                {loadingGraphs ? (
+                  <div>Loading weekly insights...</div>
+                ) : (
+                  <LineGraph department={department} data={lineGraphData} />
+                )}
               </div>
             </div>
           </div>
-          <div
-            className="col-md-6 mb-4"
-            onClick={() => navigate(`./department/${department}`)}
-            style={{ cursor: "pointer" }}
-          >
+          <div className="col-md-6 mb-4">
             <div className="card shadow-sm">
               <div className="card-body">
-                <BarGraph department={department} />
+                {loadingGraphs ? (
+                  <div>Loading monthly trends...</div>
+                ) : (
+                  <BarGraph department={department} data={barGraphData} />
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Tables */}
+        {/* Table */}
         <div className="row">
-          <div className="col-md-14 mb-4 bg-white card shadow-sm">
-            <DepartmentTable department={department} limit={5} />
+          <div className="col-12 mb-4 bg-white card shadow-sm">
+            <DepartmentTable department={department} limit={100} />
           </div>
-          {/* <div className="col-md-6 mb-4 bg-white card shadow-sm">
-            <DepartmentTable department={department} limit={5} />
-          </div> */}
+
         </div>
 
         <div className="p-4 bg-gray-900 text-white min-h-screen">
