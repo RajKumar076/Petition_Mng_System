@@ -25,6 +25,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from django.db.models import Count
+from django.db.models import Case, When, Value, IntegerField
 from django.utils import timezone
 from datetime import timedelta
 
@@ -848,3 +849,75 @@ def stats_view(request):
         "pending_complaints": pending,
         "rejected_complaints": rejected,
     })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def officer_petitions(request):
+    user = request.user
+    profile = getattr(user, "profile", None)
+    if not profile or profile.role != "officer":
+        return Response({"error": "Forbidden"}, status=403)
+    department = profile.department
+    if not department:
+        return Response({"error": "No department assigned."}, status=400)
+
+    # Annotate petitions with priority value for ordering
+    petitions = (
+        Petition.objects.filter(department=department)
+        .select_related('aianalysedpetition')
+        .annotate(
+            priority_order=Case(
+                When(aianalysedpetition__priority="High", then=Value(1)),
+                When(aianalysedpetition__priority="Medium", then=Value(2)),
+                When(aianalysedpetition__priority="Low", then=Value(3)),
+                default=Value(4),
+                output_field=IntegerField(),
+            )
+        )
+        .order_by('priority_order', '-date_submitted')
+    )
+
+    data = []
+    for p in petitions:
+        ai = getattr(p, "aianalysedpetition", None)
+        data.append({
+            "id": p.id,
+            "title": p.title,
+            "description": p.description,
+            "proof_file": p.proof_file.url if p.proof_file else None,
+            "date_submitted": p.date_submitted,
+            "priority": ai.priority if ai else "",
+            "sentiment": ai.sentiment if ai else "",
+            "status": p.status,
+            "remarks": p.remarks,
+        })
+
+    return Response(data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def officer_petition_update(request, id):
+    user = request.user
+    profile = getattr(user, "profile", None)
+    if not profile or profile.role != "officer":
+        return Response({"error": "Forbidden"}, status=403)
+
+    try:
+        petition = Petition.objects.get(pk=id, department=profile.department)
+    except Petition.DoesNotExist:
+        return Response({"error": "Petition not found"}, status=404)
+
+    status = request.data.get("status")
+    remarks = request.data.get("remarks", "")
+
+    if status not in ["solved", "rejected"]:
+        return Response({"error": "Invalid status"}, status=400)
+
+    petition.status = status
+    petition.remarks = remarks
+    petition.date_resolved = timezone.now()
+    petition.save()
+
+    return Response({"success": True})

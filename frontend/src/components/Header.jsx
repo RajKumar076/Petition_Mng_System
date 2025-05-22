@@ -12,14 +12,14 @@ const navLinks = {
     { to: "/userdashboard", label: "Dashboard" },
     { to: "/userdashboard/choosedepartment", label: "Complain" },
     { to: "/userdashboard/history", label: "Track Grievance" },
-    { to: "/userdashboard/profile", label: "Profile" },
+    // { to: "/userdashboard/profile", label: "Profile" },
     { to: "/", label: "Logout" },
   ],
   officer: [
     { to: "/officerdashboard", label: "Dashboard" },
     // We'll handle the department name dynamically below
     { to: "/officerdashboard/department", label: "Grievances", isDepartment: true },
-    { to: "/officerdashboard/profile", label: "Profile" },
+    // { to: "/officerdashboard/profile", label: "Profile" },
     { to: "/", label: "Logout" },
   ],
   admin: [
