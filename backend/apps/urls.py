@@ -23,4 +23,6 @@ urlpatterns = [
     path('line-graph-data/', views.line_graph_data, name='line_graph_data'),
     path('bar-graph-data/', views.bar_graph_data, name='bar_graph_data'),
     path('stats/', views.stats_view, name='stats_view'),
+    path('officer/petitions', views.officer_petitions, name='officer_petitions'),
+    path('officer/petitions/update/<int:id>', views.officer_petition_update, name='officer_petition_update'),
 ]
