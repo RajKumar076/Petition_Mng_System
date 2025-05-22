@@ -36,7 +36,7 @@ const DepartmentCards = () => {
                   src={dept.image_url}
                   className="card-img-top"
                   alt={dept.name}
-                  style={{ height: '200px', objectFit: 'cover' }}
+                  style={{ height: '200px', objectFit: 'centre' }}
                 />
                 <div className="card-body">
                   <h5 className="card-title fw-bold">{dept.name}</h5>

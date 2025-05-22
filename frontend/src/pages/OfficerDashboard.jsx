@@ -5,6 +5,7 @@ import LineGraph from "../components/LineGraph";
 import BarGraph from "../components/BarGraph";
 import DepartmentTable from "../components/DepartmentTable";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const OfficerDashboard = () => {
   const navigate = useNavigate();
@@ -57,6 +58,42 @@ const OfficerDashboard = () => {
       }
     };
     fetchProfile();
+  }, []);
+
+  const [petitions, setPetitions] = useState([]);
+  // const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(null);
+
+  const fetchPetitions = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await axios.get("/api/officer/petitions", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setPetitions(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
+  };
+
+  const handleUpdate = async (id, status, remarks) => {
+    const token = localStorage.getItem("token");
+    try {
+      await axios.post(
+        `/api/officer/petitions/update/${id}`,
+        { status, remarks },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      fetchPetitions();
+    } catch (err) {
+      console.error(err);
+    }
+    setUpdating(null);
+  };
+
+  useEffect(() => {
+    fetchPetitions();
   }, []);
 
   if (loading) {
@@ -122,13 +159,113 @@ const OfficerDashboard = () => {
 
         {/* Tables */}
         <div className="row">
-          <div className="col-md-6 mb-4 bg-white card shadow-sm">
+          <div className="col-md-14 mb-4 bg-white card shadow-sm">
             <DepartmentTable department={department} limit={5} />
           </div>
-          <div className="col-md-6 mb-4 bg-white card shadow-sm">
+          {/* <div className="col-md-6 mb-4 bg-white card shadow-sm">
             <DepartmentTable department={department} limit={5} />
-          </div>
+          </div> */}
         </div>
+
+        <div className="p-4 bg-gray-900 text-white min-h-screen">
+      <h1 className="text-2xl font-bold mb-4">Officer Dashboard - High Priority Petitions</h1>
+      {loading ? (
+        <p>Loading...</p>
+      ) : petitions.length === 0 ? (
+        <p>No petitions found.</p>
+      ) : (
+        <table className="w-full border border-gray-700 text-sm">
+          <thead className="bg-gray-800">
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Proof</th>
+              <th>Date</th>
+              <th>Priority</th>
+              <th>Sentiment</th>
+              <th>Action</th>
+              <th>Remarks</th>
+              <th>Submit</th>
+            </tr>
+          </thead>
+          <tbody>
+            {petitions.map((p) => (
+              <tr key={p.id} className="border-t border-gray-700">
+                <td>{p.id}</td>
+                <td>{p.title}</td>
+                <td>{p.description}</td>
+                <td>
+                  {p.proof_file ? (
+                    <a
+                      href={p.proof_file}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400"
+                    >
+                      View
+                    </a>
+                  ) : (
+                    "None"
+                  )}
+                </td>
+                <td>{new Date(p.date_submitted).toLocaleDateString()}</td>
+                <td className="font-semibold text-red-500">{p.priority}</td>
+                <td>{p.sentiment}</td>
+                <td>
+                  <select
+                    className="text-black p-1 rounded"
+                    onChange={(e) =>
+                      setUpdating((prev) => ({
+                        ...prev,
+                        [p.id]: { ...prev?.[p.id], status: e.target.value },
+                      }))
+                    }
+                    defaultValue=""
+                  >
+                    <option value="">Select</option>
+                    <option value="resolved">Resolved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    className="text-black p-1 rounded"
+                    onChange={(e) =>
+                      setUpdating((prev) => ({
+                        ...prev,
+                        [p.id]: { ...prev?.[p.id], remarks: e.target.value },
+                      }))
+                    }
+                    placeholder="Remarks"
+                  />
+                </td>
+                <td>
+                  <button
+                    onClick={() =>
+                      handleUpdate(
+                        p.id,
+                        updating?.[p.id]?.status || "",
+                        updating?.[p.id]?.remarks || ""
+                      )
+                    }
+                    className="bg-green-600 px-2 py-1 rounded hover:bg-green-700"
+                  >
+                    Update
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+
+
+
+
+
       </div>
     </div>
   );

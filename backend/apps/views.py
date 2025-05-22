@@ -22,6 +22,7 @@ from .models import Department, Profile, Petition, OfficerProfile, AIAnalysedPet
 from .serializers import DepartmentSerializer, PetitionSerializer, OfficerProfileSerializer
 from .petition_analysis import PetitionAnalyzer 
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 
 # Initially redirect to the landing page in react
@@ -167,6 +168,12 @@ def submit_petition(request, department_name):
             is_spam=is_spam
         )
 
+        # Auto-reject if duplicate
+        if is_spam:
+            petition.status = 'rejected'
+            petition.remarks = 'Duplicate Petition'
+            petition.save()
+
         return Response({
             "message": "Petition submitted and analyzed successfully.",
             "analysis": {
@@ -178,6 +185,59 @@ def submit_petition(request, department_name):
     
     print(serializer.errors)  # Added for debugging
     return Response(serializer.errors, status=400)
+
+# Officer view to fetch 5 high-priority petitions
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def officer_pending_petitions(request):
+    officer = request.user
+    department = officer.officerprofile.department
+
+    petitions = Petition.objects.filter(
+        department=department,
+        status='pending',
+        aianalysedpetition__priority='High',
+        aianalysedpetition__is_spam=False
+    ).order_by('date_submitted')[:5]
+
+    data = []
+    for petition in petitions:
+        ai = petition.aianalysedpetition
+        data.append({
+            "id": petition.id,
+            "title": petition.title,
+            "description": petition.description,
+            "proof_file": petition.proof_file.url if petition.proof_file else None,
+            "date_submitted": petition.date_submitted,
+            "priority": ai.priority,
+            "sentiment": ai.sentiment,
+            "status": petition.status,
+            "remarks": petition.remarks,
+        })
+
+    return Response(data)
+
+# Officer updates petition status and remarks
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def officer_update_petition(request, petition_id):
+    try:
+        petition = Petition.objects.get(id=petition_id)
+    except Petition.DoesNotExist:
+        return Response({"error": "Petition not found"}, status=404)
+
+    status = request.data.get("status")
+    remarks = request.data.get("remarks", "")
+
+    if status not in ["resolved", "rejected"]:
+        return Response({"error": "Invalid status"}, status=400)
+
+    petition.status = status
+    petition.remarks = remarks
+    petition.date_resolved = timezone.now()
+    petition.save()
+
+    return Response({"message": f"Petition marked as {status}."})
 
 @api_view(['GET'])
 def get_departments(request):
