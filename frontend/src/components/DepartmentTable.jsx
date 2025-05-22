@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 const DepartmentTable = ({ department, limit = 10 }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const backendURL = "http://127.0.0.1:8000/";
+
 
   // Fetch complaints for the department from backend
   useEffect(() => {
@@ -285,7 +287,7 @@ const DepartmentTable = ({ department, limit = 10 }) => {
                     <td>{date_submitted}</td>
                     <td>
                       {proof_file ? (
-                        <a href={proof_file} target="_blank" rel="noopener noreferrer">
+                        <a href={`${backendURL}${proof_file}`} target="_blank" rel="noopener noreferrer">
                           View
                         </a>
                       ) : (

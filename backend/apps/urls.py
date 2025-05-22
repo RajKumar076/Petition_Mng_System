@@ -1,5 +1,5 @@
 from django.urls import path, include 
-from .views import SignUpView, LoginView, DepartmentListCreateView, submit_petition, get_departments, add_officer, chatbot_view, UserListView, ProfileView, department_complaints, update_complaint_status
+from .views import SignUpView, LoginView, DepartmentListCreateView, submit_petition, get_departments, add_officer, chatbot_view, UserListView, ProfileView, department_complaints, update_complaint_status, delete_officer
 from . import views
 
 urlpatterns = [
@@ -25,4 +25,7 @@ urlpatterns = [
     path('stats/', views.stats_view, name='stats_view'),
     path('officer/petitions', views.officer_petitions, name='officer_petitions'),
     path('officer/petitions/update/<int:id>', views.officer_petition_update, name='officer_petition_update'),
+
+    path("admin/officer/delete/<int:officer_id>/", delete_officer, name="delete_officer"),
+
 ]

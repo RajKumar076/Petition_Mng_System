@@ -36,10 +36,28 @@ const ViewOfficers = () => {
   const sortedDepartments = Object.keys(officersByDept).sort();
 
   // Remove officer handler (dummy, replace with backend call)
-  const handleRemove = (officerId) => {
-    // TODO: Replace with backend API call to remove officer
+  const handleRemove = async (officerId) => {
+  const confirmDelete = window.confirm("Are you sure you want to remove this officer?");
+  if (!confirmDelete) return;
+
+  const token = localStorage.getItem("access_token");
+
+  try {
+    await axios.delete(
+      `http://127.0.0.1:8000/api/admin/officer/delete/${officerId}/`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    // Refresh UI
     setOfficers((prev) => prev.filter((officer) => officer.id !== officerId));
-  };
+  } catch (error) {
+    console.error("Failed to delete officer:", error);
+    alert("Error deleting officer");
+  }
+};
 
   return (
     <div>

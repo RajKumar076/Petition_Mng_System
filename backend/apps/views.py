@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 
 from rest_framework.permissions import AllowAny
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.http import JsonResponse
 from rest_framework import generics
 
@@ -28,6 +28,10 @@ from django.db.models import Count
 from django.db.models import Case, When, Value, IntegerField
 from django.utils import timezone
 from datetime import timedelta
+
+from django.core.mail import send_mail
+from django.utils.timezone import localtime
+from django.conf import settings
 
 # Initially redirect to the landing page in react
 def landing_redirect(request):
@@ -177,6 +181,19 @@ def submit_petition(request, department_name):
             petition.status = 'rejected'
             petition.remarks = 'Duplicate Petition'
             petition.save()
+
+         # Email details
+        subject = "Grievance Submitted Successfully"
+        message = (
+            f"Dear {user.username},\n\n"
+            f"Your grievance has been submitted successfully.\n\n"
+            f"Petition ID: {petition.id}\n"
+            f"Title: {petition.title}\n"
+            f"Date Submitted: {localtime(petition.date_submitted).strftime('%Y-%m-%d %H:%M')}\n"
+            "You will receive updates as your grievance progresses.\n\n"
+            "Thank you!"
+        )
+        send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email])
 
         return Response({
             "message": "Petition submitted and analyzed successfully.",
@@ -920,4 +937,44 @@ def officer_petition_update(request, id):
     petition.date_resolved = timezone.now()
     petition.save()
 
+    # Email Notification
+    subject = "Update on Your Grievance"
+    message = (
+        f"Dear {petition.user.username},\n\n"
+        f"The status of your grievance has been updated.\n\n"
+        f"Petition ID: {petition.id}\n"
+        f"Title: {petition.title}\n"
+        f"Date Submitted: {localtime(petition.date_submitted).strftime('%Y-%m-%d %H:%M')}\n"
+        f"New Status: {petition.status}\n\n"
+        "Please log in to the system to view more details.\n\n"
+        "Thank you!"
+    )
+    send_mail(subject, message, settings.EMAIL_HOST_USER, [petition.user.email])
+
     return Response({"success": True})
+
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated, IsAdminUser])
+def delete_officer(request, officer_id):
+    try:
+        if not request.user.is_superuser:
+            return Response({"error": "Only superuser can delete officers."}, status=403)
+        
+        user = User.objects.get(id=officer_id)
+        print(f"User found: {user.username}")
+        
+        profile = Profile.objects.get(user=user)
+        print(f"Profile role: {profile.role}")
+        
+        if profile.role == 'officer':
+            user.delete()
+            return Response({"message": "Officer deleted successfully."})
+        else:
+            return Response({"error": "User is not an officer."}, status=400)
+    
+    except User.DoesNotExist:
+        return Response({"error": "User not found."}, status=404)
+    
+    except Profile.DoesNotExist:
+        return Response({"error": "User profile not found."}, status=404)
