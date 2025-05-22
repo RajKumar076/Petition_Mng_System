@@ -20,4 +20,7 @@ urlpatterns = [
     path('department-stats/', views.department_stats, name='department_stats_all'),
     path('department-stats/<str:department_name>/', views.department_stats, name='department_stats'),
     path('department-pie/<str:department_name>/', views.department_pie_data, name='department_pie_data'),
+    path('line-graph-data/', views.line_graph_data, name='line_graph_data'),
+    path('bar-graph-data/', views.bar_graph_data, name='bar_graph_data'),
+    path('stats/', views.stats_view, name='stats_view'),
 ]

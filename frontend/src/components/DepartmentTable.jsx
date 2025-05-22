@@ -49,33 +49,40 @@ const DepartmentTable = ({ department, limit = 10 }) => {
 
   // Handle status update
   const handleStatusUpdate = async (id, newStatus) => {
-    try {
-      const token = localStorage.getItem("access_token");
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/complaints/${id}/update-status/`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token ? `Bearer ${token}` : undefined,
-          },
-          body: JSON.stringify({ status: newStatus }),
-          credentials: "include",
-        }
-      );
-      if (response.ok) {
-        setData((prev) =>
-          prev.map((row) =>
-            row.id === id ? { ...row, status: newStatus } : row
-          )
-        );
-      } else {
-        alert("Failed to update status.");
-      }
-    } catch (err) {
-      alert("Error updating status.");
+  try {
+    const token = localStorage.getItem("access_token");
+    // Add date_resolved only if marking as solved or rejected
+    const updateBody = { status: newStatus };
+    if (newStatus === "solved" || newStatus === "rejected") {
+      updateBody.date_resolved = new Date().toISOString().slice(0, 19); // 'YYYY-MM-DDTHH:mm:ss'
     }
-  };
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/complaints/${id}/update-status/`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
+        body: JSON.stringify(updateBody),
+        credentials: "include",
+      }
+    );
+    if (response.ok) {
+      setData((prev) =>
+        prev.map((row) =>
+          row.id === id
+            ? { ...row, status: newStatus, date_resolved: updateBody.date_resolved }
+            : row
+        )
+      );
+    } else {
+      alert("Failed to update status.");
+    }
+  } catch (err) {
+    alert("Error updating status.");
+  }
+};
 
   return (
     <div className="d-flex justify-content-center align-items-center">
