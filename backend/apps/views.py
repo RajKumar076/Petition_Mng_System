@@ -607,26 +607,58 @@ class ProfileView(APIView):
 
         return Response(data)
 
+from django.db.models import Case, When, Value, IntegerField
+
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def department_complaints(request):
-    """
-    Fetch all grievances (petitions) for a department.
-    Use ?department=DepartmentName in the query params.
-    This can be used for the PieChart or department table on click.
-    """
     department_name = request.GET.get("department")
     if not department_name:
-        return Response({"error": "Department name is required."}, status=400)
-
+        return Response([], status=200)
     try:
         department = Department.objects.get(name__iexact=department_name)
     except Department.DoesNotExist:
         return Response([], status=200)
 
-    complaints = Petition.objects.filter(department=department)
-    serializer = PetitionSerializer(complaints, many=True)
-    return Response(serializer.data)
+    # Annotate with priority order for sorting and pending status
+    petitions = (
+        Petition.objects.filter(department=department)
+        .select_related('aianalysedpetition')
+        .annotate(
+            is_pending=Case(
+                When(status__iexact="pending", then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            ),
+            priority_order=Case(
+                When(aianalysedpetition__priority="High", then=Value(1)),
+                When(aianalysedpetition__priority="Medium", then=Value(2)),
+                When(aianalysedpetition__priority="Low", then=Value(3)),
+                default=Value(4),
+                output_field=IntegerField(),
+            )
+        )
+        .order_by('-is_pending', 'priority_order', '-date_submitted')
+    )
+
+    data = []
+    for p in petitions:
+        ai = getattr(p, "aianalysedpetition", None)
+        data.append({
+            "id": p.id,
+            "title": p.title,
+            "description": p.description,
+            "address": p.address,
+            "pincode": p.pincode,
+            "phone_number": p.phone_number,
+            "date_submitted": p.date_submitted,
+            "proof_file": p.proof_file.url if p.proof_file else None,
+            "status": p.status,
+            "priority": ai.priority if ai else "",
+            "sentiment": ai.sentiment if ai else "",
+            "remarks": p.remarks,
+        })
+    return Response(data)
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
@@ -673,19 +705,42 @@ def get_officers(request):
     return Response(data)
 
 @api_view(['GET'])
-@permission_classes([AllowAny])  # Or [IsAuthenticated] if you want to restrict
+@permission_classes([AllowAny])
 def all_grievances(request):
-    petitions = Petition.objects.select_related('department').all().order_by('-id')
-    data = [
-        {
-            "id": petition.id,
-            "title": petition.title,
-            "description": petition.description,
-            "status": petition.status,
-            "department": petition.department.name if petition.department else "",
-        }
-        for petition in petitions
-    ]
+    # Annotate with priority order for sorting and pending status
+    petitions = (
+        Petition.objects.all()
+        .select_related('aianalysedpetition', 'department')
+        .annotate(
+            is_pending=Case(
+                When(status__iexact="pending", then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            ),
+            priority_order=Case(
+                When(aianalysedpetition__priority="High", then=Value(1)),
+                When(aianalysedpetition__priority="Medium", then=Value(2)),
+                When(aianalysedpetition__priority="Low", then=Value(3)),
+                default=Value(4),
+                output_field=IntegerField(),
+            )
+        )
+        .order_by('-is_pending', 'priority_order', '-date_submitted')
+    )
+
+    data = []
+    for p in petitions:
+        ai = getattr(p, "aianalysedpetition", None)
+        data.append({
+            "id": p.id,
+            "title": p.title,
+            "description": p.description,
+            "priority": ai.priority if ai else "",
+            "status": p.status,
+            "date_submitted": p.date_submitted,
+            "date_resolved": p.date_resolved,
+            "department": p.department.name if p.department else "",
+        })
     return Response(data)
 
 @api_view(['GET'])
