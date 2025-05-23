@@ -153,8 +153,11 @@ def submit_petition(request, department_name):
         description = petition.description
 
         # Get existing petition descriptions (excluding the current one to avoid self-match)
+        # existing_texts = list(
+        #     Petition.objects.exclude(id=petition.id).values_list('description', flat=True)
+        # )
         existing_texts = list(
-            Petition.objects.exclude(id=petition.id).values_list('description', flat=True)
+            Petition.objects.filter(user=user).exclude(id=petition.id).values_list('description', flat=True)
         )
 
         sentiment = analyzer.analyze_sentiment(description)
@@ -669,11 +672,32 @@ def update_complaint_status(request, pk):
             petition = Petition.objects.get(pk=pk)
             new_status = request.data.get("status")
             date_resolved = request.data.get("date_resolved")
+            remarks = request.data.get("remarks", "")
             if new_status in ["solved", "rejected"]:
                 petition.status = new_status
+                
+                petition.remarks = remarks
+
+
                 if date_resolved:
                     petition.date_resolved = date_resolved
                 petition.save()
+
+                # Email Notification
+                subject = "Update on Your Grievance"
+                message = (
+                    f"Dear {petition.user.username},\n\n"
+                    f"The status of your grievance has been updated.\n\n"
+                    f"Petition ID: {petition.id}\n"
+                    f"Title: {petition.title}\n"
+                    f"Date Submitted: {localtime(petition.date_submitted).strftime('%Y-%m-%d %H:%M')}\n"
+                    f"New Status: {petition.status}\n"
+                    f"Remarks: {petition.remarks}\n\n"
+                    "Please log in to the system to view more details.\n\n"
+                    "Thank you!"
+                )
+                send_mail(subject, message, settings.EMAIL_HOST_USER, [petition.user.email])
+
                 return Response({"success": True})
             return Response({"error": "Invalid status"}, status=400)
         except Petition.DoesNotExist:
