@@ -3,8 +3,9 @@ import React, { useState, useEffect } from "react";
 const DepartmentTable = ({ department, limit = 10 }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [remarks, setRemarks] = useState({});
+  const [updating, setUpdating] = useState({});
   const backendURL = "http://127.0.0.1:8000/";
-
 
   // Fetch complaints for the department from backend
   useEffect(() => {
@@ -49,220 +50,93 @@ const DepartmentTable = ({ department, limit = 10 }) => {
     }
   };
 
-  // Handle status update
+  // Handle status update with remarks
   const handleStatusUpdate = async (id, newStatus) => {
-  try {
-    const token = localStorage.getItem("access_token");
-    // Add date_resolved only if marking as solved or rejected
-    const updateBody = { status: newStatus };
-    if (newStatus === "solved" || newStatus === "rejected") {
-      updateBody.date_resolved = new Date().toISOString().slice(0, 19); // 'YYYY-MM-DDTHH:mm:ss'
+    if (!remarks[id] || !remarks[id].trim()) {
+      alert("Please fill in the remarks before submitting.");
+      return;
     }
-    const response = await fetch(
-      `http://127.0.0.1:8000/api/complaints/${id}/update-status/`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : undefined,
-        },
-        body: JSON.stringify(updateBody),
-        credentials: "include",
+    setUpdating((prev) => ({ ...prev, [id]: true }));
+    try {
+      const token = localStorage.getItem("access_token");
+      const updateBody = { status: newStatus, remarks: remarks[id] };
+      if (newStatus === "solved" || newStatus === "rejected") {
+        updateBody.date_resolved = new Date().toISOString().slice(0, 19);
       }
-    );
-    if (response.ok) {
-      setData((prev) =>
-        prev.map((row) =>
-          row.id === id
-            ? { ...row, status: newStatus, date_resolved: updateBody.date_resolved }
-            : row
-        )
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/complaints/${id}/update-status/`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+          body: JSON.stringify(updateBody),
+          credentials: "include",
+        }
       );
-    } else {
-      alert("Failed to update status.");
+      if (response.ok) {
+        setData((prev) =>
+          prev.map((row) =>
+            row.id === id
+              ? {
+                  ...row,
+                  status: newStatus,
+                  date_resolved: updateBody.date_resolved,
+                  remarks: remarks[id],
+                }
+              : row
+          )
+        );
+      } else {
+        alert("Failed to update status.");
+      }
+    } catch (err) {
+      alert("Error updating status.");
     }
-  } catch (err) {
-    alert("Error updating status.");
-  }
-};
+    setUpdating((prev) => ({ ...prev, [id]: false }));
+  };
 
   return (
     <div className="d-flex justify-content-center align-items-center">
-    <div
-      className="table-responsive w-100 rounded"
-      style={{
-        maxHeight: "500px",
-        overflowY: "auto",
-        overflowX: "unset", // Remove horizontal scroll
-        background: "#fff",
-        boxShadow: "0 2px 16px rgba(0,0,0,0.08)",
-        borderRadius: "18px",
-        padding: "10px",
-      }}
-    >
+      <div
+        className="table-responsive w-100 rounded"
+        style={{
+          maxHeight: "500px",
+          overflowY: "auto",
+          overflowX: "unset",
+          background: "#fff",
+          boxShadow: "0 2px 16px rgba(0,0,0,0.08)",
+          borderRadius: "18px",
+          padding: "10px",
+        }}
+      >
         <table className="table table-bordered table-hover align-middle text-center mb-0">
           <thead>
-  <tr>
-    <th
-      style={{
-        backgroundColor: "#9352dd",
-        color: "#fff",
-        textAlign: "center",
-        fontSize: "1.35rem",
-        height: "60px",
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-        backgroundClip: "padding-box",
-      }}
-    >
-      ID
-    </th>
-    <th
-      style={{
-        backgroundColor: "#9352dd",
-        color: "#fff",
-        textAlign: "center",
-        fontSize: "1.35rem",
-        height: "60px",
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-        backgroundClip: "padding-box",
-      }}
-    >
-      Title
-    </th>
-    <th
-      style={{
-        backgroundColor: "#9352dd",
-        color: "#fff",
-        textAlign: "center",
-        fontSize: "1.35rem",
-        height: "60px",
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-        backgroundClip: "padding-box",
-      }}
-    >
-      Description
-    </th>
-    <th
-      style={{
-        backgroundColor: "#9352dd",
-        color: "#fff",
-        textAlign: "center",
-        fontSize: "1.35rem",
-        height: "60px",
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-        backgroundClip: "padding-box",
-      }}
-    >
-      Address
-    </th>
-    <th
-      style={{
-        backgroundColor: "#9352dd",
-        color: "#fff",
-        textAlign: "center",
-        fontSize: "1.35rem",
-        height: "60px",
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-        backgroundClip: "padding-box",
-      }}
-    >
-      Pincode
-    </th>
-    <th
-      style={{
-        backgroundColor: "#9352dd",
-        color: "#fff",
-        textAlign: "center",
-        fontSize: "1.35rem",
-        height: "60px",
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-        backgroundClip: "padding-box",
-      }}
-    >
-      Phone
-    </th>
-    <th
-      style={{
-        backgroundColor: "#9352dd",
-        color: "#fff",
-        textAlign: "center",
-        fontSize: "1.35rem",
-        height: "60px",
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-        backgroundClip: "padding-box",
-      }}
-    >
-      Date
-    </th>
-    <th
-      style={{
-        backgroundColor: "#9352dd",
-        color: "#fff",
-        textAlign: "center",
-        fontSize: "1.35rem",
-        height: "60px",
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-        backgroundClip: "padding-box",
-      }}
-    >
-      File Attached
-    </th>
-    <th
-      style={{
-        backgroundColor: "#9352dd",
-        color: "#fff",
-        textAlign: "center",
-        fontSize: "1.35rem",
-        height: "60px",
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-        backgroundClip: "padding-box",
-      }}
-    >
-      Status
-    </th>
-    <th
-      style={{
-        backgroundColor: "#9352dd",
-        color: "#fff",
-        textAlign: "center",
-        fontSize: "1.35rem",
-        height: "60px",
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-        backgroundClip: "padding-box",
-      }}
-    >
-      Actions
-    </th>
-  </tr>
-</thead>
+            <tr>
+              <th style={thStyle}>ID</th>
+              <th style={thStyle}>Title</th>
+              <th style={thStyle}>Description</th>
+              <th style={thStyle}>Address</th>
+              <th style={thStyle}>Pincode</th>
+              <th style={thStyle}>Phone</th>
+              <th style={thStyle}>Date</th>
+              <th style={thStyle}>Proof</th>
+              <th style={thStyle}>Status</th>
+              <th style={thStyle}>Priority</th>
+              <th style={thStyle}>Sentiment</th>
+              <th style={thStyle}>Remarks</th>
+              <th style={thStyle}>Actions</th>
+            </tr>
+          </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={10}>Loading...</td>
+                <td colSpan={13}>Loading...</td>
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={10}>No complaints found.</td>
+                <td colSpan={13}>No complaints found.</td>
               </tr>
             ) : (
               data.map(
@@ -276,6 +150,9 @@ const DepartmentTable = ({ department, limit = 10 }) => {
                   date_submitted,
                   proof_file,
                   status,
+                  priority,
+                  sentiment,
+                  remarks: rowRemarks,
                 }) => (
                   <tr key={id}>
                     <td>{id}</td>
@@ -295,102 +172,77 @@ const DepartmentTable = ({ department, limit = 10 }) => {
                       )}
                     </td>
                     <td className={getStatusColor(status)}>{status}</td>
-<td>
-  <span
-    className="me-3"
+                    <td>{priority || "-"}</td>
+                    <td>{sentiment || "-"}</td>
+                    <td>
+  <textarea
+    className="form-control"
     style={{
-      cursor: status === "solved" ? "not-allowed" : "pointer",
-      opacity: status === "solved" ? 0.5 : 1,
-      fontSize: "1.3rem",
-      position: "relative",
-      display: "inline-block",
-      background: "#28a745",
-      color: "#fff",
-      borderRadius: "6px",
-      padding: "4px 10px",
-      marginRight: "8px",
-      transition: "background 0.2s",
-      border: "none",
+      width: "100%",
+      minWidth: 0,
+      boxSizing: "border-box",
+      resize: "vertical",
+      height: "100%",
     }}
-    onClick={() => status !== "solved" && handleStatusUpdate(id, "solved")}
-    title="Mark as Solved"
-    onMouseEnter={e => {
-      const tooltip = e.currentTarget.querySelector(".solved-tooltip");
-      if (tooltip) tooltip.style.visibility = "visible";
-    }}
-    onMouseLeave={e => {
-      const tooltip = e.currentTarget.querySelector(".solved-tooltip");
-      if (tooltip) tooltip.style.visibility = "hidden";
-    }}
-  >
-    <span role="img" aria-label="Solved">&#10003;</span>
-    <span
-      style={{
-        visibility: "hidden",
-        background: "#222",
-        color: "#fff",
-        borderRadius: "4px",
-        padding: "2px 8px",
-        position: "absolute",
-        zIndex: 2,
-        left: "110%",
-        top: "50%",
-        transform: "translateY(-50%)",
-        whiteSpace: "nowrap",
-        fontSize: "0.95rem",
-      }}
-      className="solved-tooltip"
-    >
-      Solved
-    </span>
-  </span>
-  <span
-    style={{
-      cursor: status === "rejected" ? "not-allowed" : "pointer",
-      opacity: status === "rejected" ? 0.5 : 1,
-      fontSize: "1.3rem",
-      position: "relative",
-      display: "inline-block",
-      background: "#dc3545",
-      color: "#fff",
-      borderRadius: "6px",
-      padding: "4px 10px",
-      transition: "background 0.2s",
-      border: "none",
-    }}
-    onClick={() => status !== "rejected" && handleStatusUpdate(id, "rejected")}
-    title="Mark as Rejected"
-    onMouseEnter={e => {
-      const tooltip = e.currentTarget.querySelector(".rejected-tooltip");
-      if (tooltip) tooltip.style.visibility = "visible";
-    }}
-    onMouseLeave={e => {
-      const tooltip = e.currentTarget.querySelector(".rejected-tooltip");
-      if (tooltip) tooltip.style.visibility = "hidden";
-    }}
-  >
-    <span role="img" aria-label="Rejected">&#10007;</span>
-    <span
-      style={{
-        visibility: "hidden",
-        background: "#222",
-        color: "#fff",
-        borderRadius: "4px",
-        padding: "2px 8px",
-        position: "absolute",
-        zIndex: 2,
-        left: "110%",
-        top: "50%",
-        transform: "translateY(-50%)",
-        whiteSpace: "nowrap",
-        fontSize: "0.95rem",
-      }}
-      className="rejected-tooltip"
-    >
-      Rejected
-    </span>
-  </span>
+    rows={2}
+    value={remarks[id] !== undefined ? remarks[id] : rowRemarks || ""}
+    onChange={e =>
+      setRemarks((prev) => ({
+        ...prev,
+        [id]: e.target.value,
+      }))
+    }
+    disabled={updating[id]}
+    placeholder="Enter remarks"
+    required
+  />
 </td>
+                    <td>
+                      <span
+                        className="me-3"
+                        style={{
+                          cursor: status === "solved" || updating[id] ? "not-allowed" : "pointer",
+                          opacity: status === "solved" || updating[id] ? 0.5 : 1,
+                          fontSize: "1.3rem",
+                          position: "relative",
+                          display: "inline-block",
+                          background: "#28a745",
+                          color: "#fff",
+                          borderRadius: "6px",
+                          padding: "4px 10px",
+                          marginRight: "8px",
+                          transition: "background 0.2s",
+                          border: "none",
+                        }}
+                        onClick={() =>
+                          status !== "solved" && !updating[id] && handleStatusUpdate(id, "solved")
+                        }
+                        title="Mark as Solved"
+                      >
+                        <span role="img" aria-label="Solved">&#10003;</span>
+                      </span>
+                      <span
+                        style={{
+                          cursor: status === "rejected" || updating[id] ? "not-allowed" : "pointer",
+                          opacity: status === "rejected" || updating[id] ? 0.5 : 1,
+                          fontSize: "1.3rem",
+                          position: "relative",
+                          display: "inline-block",
+                          background: "#dc3545",
+                          color: "#fff",
+                          borderRadius: "6px",
+                          padding: "4px 10px",
+                          transition: "background 0.2s",
+                          border: "none",
+                        }}
+                        onClick={() =>
+                          status !== "rejected" && !updating[id] && handleStatusUpdate(id, "rejected")
+                        }
+                        title="Mark as Rejected"
+                      >
+                        <span role="img" aria-label="Rejected">&#10007;</span>
+                      </span>
+                    </td>
                   </tr>
                 )
               )
@@ -400,6 +252,18 @@ const DepartmentTable = ({ department, limit = 10 }) => {
       </div>
     </div>
   );
+};
+
+const thStyle = {
+  backgroundColor: "#9352dd",
+  color: "#fff",
+  textAlign: "center",
+  fontSize: "1.35rem",
+  height: "60px",
+  position: "sticky",
+  top: 0,
+  zIndex: 10,
+  backgroundClip: "padding-box",
 };
 
 export default DepartmentTable;
